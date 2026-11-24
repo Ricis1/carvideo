@@ -35,7 +35,6 @@ struct DestinationSearchSheet: View {
     @StateObject private var comp = PlaceCompleter()
     @State private var q = ""
     @State private var busy = false
-    @FocusState private var focused: Bool
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -64,10 +63,8 @@ struct DestinationSearchSheet: View {
             }
             .overlay { if busy { ProgressView().controlSize(.large) } }
             .searchable(text: $q, placement: .navigationBarDrawer(displayMode: .always), prompt: "Kur važiuojam?")
-            .searchFocused($focused)
             .onSubmit(of: .search) { Task { await pick(query: q, title: q) } }
             .onChange(of: q) { _, v in comp.update(v, near: location) }
-            .onAppear { focused = true }
             .navigationTitle("Kur važiuojam?").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Uždaryti") { dismiss() } } }
         }
