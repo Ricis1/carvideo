@@ -127,11 +127,6 @@ struct V16Section: View {
     @AppStorage("ev.range") private var range: Double = 400
     var body: some View {
         Section {
-            if Feature.own3d.isOn {
-                OwnCar16View().frame(height: 170)
-                Picker("Kėbulas", selection: $bodyType) { ForEach(CarBody.allCases) { Text($0.title).tag($0.rawValue) } }
-                Picker("Ratlankiai", selection: $rims) { ForEach(RimStyle.allCases) { Text($0.title).tag($0.rawValue) } }.pickerStyle(.segmented)
-            }
             Toggle(isOn: $stops) { Label { VStack(alignment: .leading) { Text("Kelionė su sustojimais"); Text("Keli tikslai vienoje kelionėje").font(.caption).foregroundStyle(.secondary) } } icon: { Image(systemName: "point.topleft.down.to.point.bottomright.curvepath") } }
             Toggle(isOn: $evplan) { Label { VStack(alignment: .leading) { Text("Elektromobilio planas"); Text("Kur ir kiek krauti ilgoje kelionėje").font(.caption).foregroundStyle(.secondary) } } icon: { Image(systemName: "bolt.car") } }
             if evplan { Stepper("Nuvažiuoja pilnai: \(Int(range)) km", value: $range, in: 100...900, step: 10) }

@@ -312,17 +312,9 @@ struct ContentView: View {
             RoundedRectangle(cornerRadius: 14).fill(Color(white: 0.08))
 
             switch source {
-            case .none:
-                VStack(spacing: 16) {
-                    Image(systemName: "play.rectangle").font(.system(size: 48))
-                    Text("Pasirink video").font(.headline)
-                    HStack {
-                        Button("YouTube nuoroda") { linkInput = lastYouTube; showLinkSheet = true }
-                        Button("Failas") { showFilePicker = true }
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-                .foregroundStyle(.white)
+            case .none:   // v18: YouTube kaip programėlėje – paieška, rekomendacijos, prisijungimas
+                YouTubePlayerView(videoID: "", paused: lockedByMotion)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
             case .youtube(let id):
                 YouTubePlayerView(videoID: id, paused: lockedByMotion)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -331,7 +323,7 @@ struct ContentView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14))
             }
 
-            if lockedByMotion && source != .none {
+            if lockedByMotion {
                 VStack(spacing: 8) {
                     Image(systemName: "car.fill").font(.system(size: 40))
                     Text("Video sustabdytas važiuojant")
@@ -350,11 +342,10 @@ struct ContentView: View {
             }
         }
         .overlay(alignment: .topTrailing) {
-            if source != .none {
+            Group {
                 Menu {
-                    Button("YouTube nuoroda") { linkInput = lastYouTube; showLinkSheet = true }
+                    Button("YouTube") { source = .none }
                     Button("Failas") { showFilePicker = true }
-                    Button("Uždaryti video", role: .destructive) { source = .none }
                 } label: {
                     Image(systemName: "ellipsis.circle.fill")
                         .font(.title2).foregroundStyle(.white, .black.opacity(0.6))
@@ -364,7 +355,7 @@ struct ContentView: View {
         }
         // v4: video per visą ekraną; „Pradžia“ grąžina didelį video su žemėlapiu šone.
         .overlay(alignment: .topLeading) {
-            if source != .none {
+            Group {
                 Button { withAnimation { solo = solo == "video" ? nil : "video" } } label: {
                     Image(systemName: solo == "video" ? "house.circle.fill" : "arrow.up.left.and.arrow.down.right.circle.fill")
                         .font(.title2).foregroundStyle(.white, .black.opacity(0.6))

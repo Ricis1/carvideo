@@ -29,7 +29,7 @@ targets:
       path: CarVideo/Info.plist
       properties:
         CFBundleDisplayName: CarVideo
-        CFBundleShortVersionString: "17.0"
+        CFBundleShortVersionString: "18.0"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         ITSAppUsesNonExemptEncryption: false
         NSLocationWhenInUseUsageDescription: "Vieta reikalinga žemėlapiui ir greičiui, kad video sustotų važiuojant."
@@ -86,7 +86,7 @@ targets:
       path: CarVideoWidget/Info.plist
       properties:
         CFBundleDisplayName: Važiuoti namo
-        CFBundleShortVersionString: "17.0"
+        CFBundleShortVersionString: "18.0"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension

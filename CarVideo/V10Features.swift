@@ -7,12 +7,11 @@ import UserNotifications
 // MARK: - v10: 7 funkcijos, kiekvieną galima išjungti (Nustatymai → Papildomos funkcijos)
 
 enum Feature: String, CaseIterable, Identifiable {
-    case own3d, passenger, live, log, remind, wizard, portrait
+    case passenger, live, log, remind, wizard, portrait   // v18: savas 3D modelis išimtas
     var id: String { rawValue }
     var key: String { "f." + rawValue }
     var title: String {
         switch self {
-        case .own3d: "Savas 3D automobilis"
         case .passenger: "Keleivio režimas"
         case .live: "Užrakinto ekrano valdiklis"
         case .log: "Kelionių žurnalas"
@@ -23,7 +22,6 @@ enum Feature: String, CaseIterable, Identifiable {
     }
     var detail: String {
         switch self {
-        case .own3d: "Mūsų sukurtas modelis, tinka viešam išleidimui"
         case .passenger: "Video nesustoja, kai patvirtini, kad žiūri keleivis"
         case .live: "Laikas iki tikslo ir eismas ant užrakinto ekrano"
         case .log: "Maršrutas žemėlapyje, darbo / asmeninė, eksportas"
@@ -240,7 +238,6 @@ struct PortraitHomeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
                 TimelineView(.everyMinute) { c in Text(c.date, style: .time).font(.system(size: 56, weight: .thin)) }
-                if Feature.own3d.isOn { OwnCar16View().frame(height: 170) }   // v16: kėbulai ir ratlankiai
                 Map(position: $pos) { UserAnnotation() }
                     .frame(height: 260).clipShape(RoundedRectangle(cornerRadius: 22))
                     .overlay(alignment: .bottomLeading) {
