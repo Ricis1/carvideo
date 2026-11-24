@@ -1,0 +1,62 @@
+# Sukompiliuoja, pasirašo ir įkelia app'ą į TestFlight.
+# Reikalingi GitHub Secrets (Settings → Secrets and variables → Actions):
+#   ASC_KEY_ID      – App Store Connect API rakto ID
+#   ASC_ISSUER_ID   – Issuer ID (rodomas virš raktų sąrašo)
+#   ASC_KEY_P8      – viso .p8 failo turinys (su BEGIN/END eilutėmis)
+#   TEAM_ID         – Apple Developer Team ID (10 simbolių)
+#   BUNDLE_ID       – pvz. lt.vardas.carvideo (toks pat kaip App Store Connect app'e)
+name: TestFlight
+
+# v17: paleidžiama tik rankiniu būdu (reikia mokamos Apple paskyros).
+on:
+  workflow_dispatch:
+
+jobs:
+  testflight:
+    runs-on: macos-15
+    env:
+      BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+      TEAM_ID: ${{ secrets.TEAM_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate project
+        run: brew install xcodegen && xcodegen
+
+      - name: Write API key
+        run: |
+          mkdir -p ~/private_keys
+          printf '%s\n' "${{ secrets.ASC_KEY_P8 }}" > ~/private_keys/AuthKey.p8
+
+      - name: Archive
+        run: |
+          xcodebuild -project CarVideo.xcodeproj -scheme CarVideo \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -archivePath "$PWD/build/CarVideo.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey.p8 \
+            -authenticationKeyID "${{ secrets.ASC_KEY_ID }}" \
+            -authenticationKeyIssuerID "${{ secrets.ASC_ISSUER_ID }}" \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            archive
+
+      - name: Upload to TestFlight
+        run: |
+          cat > ExportOptions.plist <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>${TEAM_ID}</string>
+            <key>signingStyle</key><string>automatic</string>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath "$PWD/build/CarVideo.xcarchive" \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath "$PWD/build/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey.p8 \
+            -authenticationKeyID "${{ secrets.ASC_KEY_ID }}" \
+            -authenticationKeyIssuerID "${{ secrets.ASC_ISSUER_ID }}"

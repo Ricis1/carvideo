@@ -1,0 +1,940 @@
+[
+ {
+  "name": "BMW 6 Series Gran Turismo",
+  "make": "BMW",
+  "file": "BMW 6 SERIES GRAN TURISMO (G32) China (31).jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:BMW_6_SERIES_GRAN_TURISMO_(G32)_China_(31).jpg",
+  "author": "Dinkun Chen",
+  "license": "CC BY-SA 4.0",
+  "img": "img/00.jpg",
+  "sketchfab": []
+ },
+ {
+  "name": "BMW 3 Series (G20)",
+  "make": "BMW",
+  "file": "2019 BMW 318d SE Automatic 2.0 Front.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:2019_BMW_318d_SE_Automatic_2.0_Front.jpg",
+  "author": "Vauxford",
+  "license": "CC BY-SA 4.0",
+  "img": "img/01.jpg",
+  "sketchfab": [
+   {
+    "name": "2020 BMW 3 Series G20",
+    "url": "https://sketchfab.com/3d-models/none-dc298c5c06a848f8bf6d68ae32e354ce",
+    "license": "CC Attribution-NonCommercial",
+    "faces": 10750,
+    "user": "CharlieAsunci"
+   },
+   {
+    "name": "BMW G20 330i",
+    "url": "https://sketchfab.com/3d-models/none-87c972d41e9e4717b2d2db206bf315ae",
+    "license": "Free Standard",
+    "faces": 371194,
+    "user": "Gerda"
+   },
+   {
+    "name": "BMW 3 Series G20 (2019)",
+    "url": "https://sketchfab.com/3d-models/none-d696275f625b4e41a4f73d16ceacc8fc",
+    "license": "CC Attribution",
+    "faces": 2286700,
+    "user": "canaquino"
+   }
+  ]
+ },
+ {
+  "name": "BMW 5 Series Gran Turismo",
+  "make": "BMW",
+  "file": "BMW Série 5 GT Concept.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:BMW_S%C3%A9rie_5_GT_Concept.jpg",
+  "author": "Ascaron",
+  "license": "CC BY-SA 3.0",
+  "img": null,
+  "sketchfab": [
+   {
+    "name": "2014 BMW 5-Series Gran Turismo",
+    "url": "https://sketchfab.com/3d-models/none-124325f980584b10b147c4aec85f9b0a",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 44273,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "2013 BMW 335i Gran Turismo (F34)",
+    "url": "https://sketchfab.com/3d-models/none-e4f91073e4374de5a3ff0858f25400d2",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 51140,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "BMW 5 Series GT",
+    "url": "https://sketchfab.com/3d-models/none-1eb70ec41f38447a9b6a4886f1ca1005",
+    "license": "CC Attribution",
+    "faces": 1036076,
+    "user": "Nieve5677"
+   }
+  ]
+ },
+ {
+  "name": "BMW X5",
+  "make": "BMW",
+  "file": "BMW X5 M (MSP15).JPG",
+  "page": "https://commons.wikimedia.org/wiki/File:BMW_X5_M_(MSP15).JPG",
+  "author": "Jakub \"Flyz1\" Maciejewski",
+  "license": "CC BY-SA 3.0",
+  "img": "img/03.jpg",
+  "sketchfab": [
+   {
+    "name": "2020 BMW X5 M Competition",
+    "url": "https://sketchfab.com/3d-models/none-9b211d525797457e988c903f67d0b753",
+    "license": "CC Attribution",
+    "faces": 319318,
+    "user": "David_Holiday"
+   },
+   {
+    "name": "BMW X5",
+    "url": "https://sketchfab.com/3d-models/none-f1adb5c9133f4938a9ee03076c2a1e5a",
+    "license": "CC Attribution",
+    "faces": 22550,
+    "user": "David_Holiday"
+   },
+   {
+    "name": "2015 BMW X5",
+    "url": "https://sketchfab.com/3d-models/none-a2e7d663902e4be7bd170fdb9f333ad8",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 44210,
+    "user": "Ddiaz Design"
+   }
+  ]
+ },
+ {
+  "name": "BMW X3",
+  "make": "BMW",
+  "file": "BMW G45 X3 M50 Auto Zuerich 2024 DSC 6679.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:BMW_G45_X3_M50_Auto_Zuerich_2024_DSC_6679.jpg",
+  "author": "Alexander-93",
+  "license": "CC BY-SA 4.0",
+  "img": "img/04.jpg",
+  "sketchfab": [
+   {
+    "name": "BMW X3 M40i",
+    "url": "https://sketchfab.com/3d-models/none-3e916a0f038a4f46a9d16f3f69c5ebaf",
+    "license": "CC Attribution-NonCommercial",
+    "faces": 426708,
+    "user": "Outlaw Games™"
+   },
+   {
+    "name": "2024 BMW X3 M40i",
+    "url": "https://sketchfab.com/3d-models/none-d35d04aac7f242d997af5d8d2d7fbeca",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 428686,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "2022 BMW X3 xDrive 30i",
+    "url": "https://sketchfab.com/3d-models/none-b5c660d8e39340538a06561eaca69b5f",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 97298,
+    "user": "Ddiaz Design"
+   }
+  ]
+ },
+ {
+  "name": "Audi A4 B9",
+  "make": "Audi AG",
+  "file": "2018 Audi A4 Sport TDi Quattro S-A 2.0.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:2018_Audi_A4_Sport_TDi_Quattro_S-A_2.0.jpg",
+  "author": "Vauxford",
+  "license": "CC BY-SA 4.0",
+  "img": "img/05.jpg",
+  "sketchfab": [
+   {
+    "name": "2005 Audi A4 3.2 FSI quattro",
+    "url": "https://sketchfab.com/3d-models/none-fd2e6813f8224d58b104dfbfc1ab3173",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 31882,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "Audi A4 (B5)",
+    "url": "https://sketchfab.com/3d-models/none-b5861ddefcb8478b858b3150aa44cd7f",
+    "license": "CC Attribution",
+    "faces": 219888,
+    "user": "MMC Works"
+   },
+   {
+    "name": "Audi A4 DTM R14 Redbull",
+    "url": "https://sketchfab.com/3d-models/none-240267258f81480eb4263c83bf674ad9",
+    "license": "CC Attribution",
+    "faces": 177596,
+    "user": "Dave Love SketchFab"
+   }
+  ]
+ },
+ {
+  "name": "Audi A6 C9",
+  "make": "Audi AG",
+  "file": "Audi A6 Avant C9 IMG 5088.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Audi_A6_Avant_C9_IMG_5088.jpg",
+  "author": "Alexander Migl",
+  "license": "CC BY-SA 4.0",
+  "img": "img/06.jpg",
+  "sketchfab": [
+   {
+    "name": "Audi A6 C8 Limousine",
+    "url": "https://sketchfab.com/3d-models/none-c9b7cf9c176b458785edd0b12e235364",
+    "license": "Free Standard",
+    "faces": 301880,
+    "user": "Gerda"
+   },
+   {
+    "name": "Audi A6 C7 Limousine",
+    "url": "https://sketchfab.com/3d-models/none-6f437b447b87420fae3b56220d0a401e",
+    "license": "Free Standard",
+    "faces": 461408,
+    "user": "Gerda"
+   },
+   {
+    "name": "Audi A6",
+    "url": "https://sketchfab.com/3d-models/none-4f9673a399984da4ba00a9c47d91f32a",
+    "license": "CC Attribution",
+    "faces": 310220,
+    "user": "Res1n"
+   }
+  ]
+ },
+ {
+  "name": "Audi A3 8Y",
+  "make": "Audi AG",
+  "file": "Audi A3 8Y 1X7A6468.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Audi_A3_8Y_1X7A6468.jpg",
+  "author": "Alexander Migl",
+  "license": "CC BY-SA 4.0",
+  "img": "img/07.jpg",
+  "sketchfab": [
+   {
+    "name": "2009 Audi A3 2.0T",
+    "url": "https://sketchfab.com/3d-models/none-b0eb581f30b941b3a2278194489c5374",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 27272,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "Audi A3 2022",
+    "url": "https://sketchfab.com/3d-models/none-5856963f5c664e01b3181eaa75523f5f",
+    "license": "CC Attribution",
+    "faces": 84702,
+    "user": "smussull"
+   },
+   {
+    "name": "Audi A3 2021 trim",
+    "url": "https://sketchfab.com/3d-models/none-bb52322182cb47848a6b6ffd7b03bf87",
+    "license": "CC Attribution",
+    "faces": 194324,
+    "user": "WillisChiejina"
+   }
+  ]
+ },
+ {
+  "name": "Audi Q7",
+  "make": "Audi AG",
+  "file": "Audi Q7 4M FL2 3.0 V6 MHEV quattro Satellite Silver Metallic 01 (cropped).jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Audi_Q7_4M_FL2_3.0_V6_MHEV_quattro_Satellite_Silver_Metallic_01_(cropped).jpg",
+  "author": "Ethan Llamas",
+  "license": "CC BY-SA 4.0",
+  "img": "img/08.jpg",
+  "sketchfab": [
+   {
+    "name": "2009 Audi Q7 V12 TDI",
+    "url": "https://sketchfab.com/3d-models/none-fb78f278a774418ebb3cc53a995adddc",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 35443,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "2015 Audi Q7",
+    "url": "https://sketchfab.com/3d-models/none-65917c52e0b24f1289126128600ed7aa",
+    "license": "CC Attribution",
+    "faces": 39184,
+    "user": "razor24"
+   },
+   {
+    "name": "Audi Q7",
+    "url": "https://sketchfab.com/3d-models/none-1bd807b75ca744c2b639740ecd7ff6fa",
+    "license": "CC Attribution",
+    "faces": 140016,
+    "user": "Savelliy 07"
+   }
+  ]
+ },
+ {
+  "name": "Mercedes-Benz EQE",
+  "make": "Mercedes-Benz Group",
+  "file": "Mercedes-Benz V295 350+ 1X7A0313.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_V295_350%2B_1X7A0313.jpg",
+  "author": "Alexander Migl",
+  "license": "CC BY-SA 4.0",
+  "img": "img/09.jpg",
+  "sketchfab": [
+   {
+    "name": "Mercedes-Benz EQE",
+    "url": "https://sketchfab.com/3d-models/none-43643cf5bc26471083d66d0d3b85de4f",
+    "license": "CC Attribution",
+    "faces": 1060906,
+    "user": "Emre Çınar"
+   },
+   {
+    "name": "Mercedes Benz EQE AMG",
+    "url": "https://sketchfab.com/3d-models/none-1f1dfa0adfc943039d3870a5b958f069",
+    "license": "CC Attribution",
+    "faces": 1099820,
+    "user": "Casacade Models"
+   },
+   {
+    "name": "Mercedes Benz EQE",
+    "url": "https://sketchfab.com/3d-models/none-8c87a3c2e7444efbb671eefff1272632",
+    "license": "CC Attribution",
+    "faces": 1161660,
+    "user": "Nieve5677"
+   }
+  ]
+ },
+ {
+  "name": "Mercedes-Benz GLE-Class",
+  "make": "Mercedes-Benz Group",
+  "file": "Mercedes-Benz GLE AMG Line (V 167, Facelift) – f 14042024.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_GLE_AMG_Line_(V_167,_Facelift)_%E2%80%93_f_14042024.jpg",
+  "author": "© M 93",
+  "license": "CC BY-SA 3.0 de",
+  "img": "img/10.jpg",
+  "sketchfab": [
+   {
+    "name": "Mercedes-AMG GLE 63 Coupe 2022",
+    "url": "https://sketchfab.com/3d-models/none-ac4667c76f4e4e6c813ff3e72bc07ff8",
+    "license": "CC Attribution",
+    "faces": 408952,
+    "user": "ceron_alex"
+   },
+   {
+    "name": "Mercedes-Benz GLE 2027",
+    "url": "https://sketchfab.com/3d-models/none-905a3c541e4e405eaeead41a4deb28b6",
+    "license": "CC Attribution",
+    "faces": 2540332,
+    "user": "BMW'S Lost Proxy"
+   },
+   {
+    "name": "Mercedes-Benz GLE-class (W166)",
+    "url": "https://sketchfab.com/3d-models/none-1038fbd56eef423cbfd9370008d7dd8f",
+    "license": "CC Attribution",
+    "faces": 1515148,
+    "user": "Savelliy 07"
+   }
+  ]
+ },
+ {
+  "name": "Mercedes-Benz GLA",
+  "make": "Mercedes-Benz",
+  "file": "Mercedes-Benz GLA 180 Edition AMG Line (H 247, Facelift) – f 12102024.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_GLA_180_Edition_AMG_Line_(H_247,_Facelift)_%E2%80%93_f_12102024.jpg",
+  "author": "© M 93",
+  "license": "CC BY-SA 3.0 de",
+  "img": "img/11.jpg",
+  "sketchfab": [
+   {
+    "name": "Mercedes-Benz GLA-Class 2020",
+    "url": "https://sketchfab.com/3d-models/none-ab7b5df3ba634f38a14effde3d542466",
+    "license": "CC Attribution",
+    "faces": 176353,
+    "user": "ItsDiyor"
+   },
+   {
+    "name": "2016 Mercedes-Benz GLA 200",
+    "url": "https://sketchfab.com/3d-models/none-5674a3983cb3493c899dab9d919f80ce",
+    "license": "CC Attribution",
+    "faces": 272204,
+    "user": "tonielpro520"
+   },
+   {
+    "name": "GLA 45 AMG Mercedes",
+    "url": "https://sketchfab.com/3d-models/none-aaf5295373cd4e29a032fb3165765925",
+    "license": "CC Attribution",
+    "faces": 184748,
+    "user": "davidmarton1987"
+   }
+  ]
+ },
+ {
+  "name": "Volkswagen Golf Mk8",
+  "make": "Volkswagen Group",
+  "file": "2020 Volkswagen Golf Style 1.5 Front.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:2020_Volkswagen_Golf_Style_1.5_Front.jpg",
+  "author": "Vauxford",
+  "license": "CC BY-SA 4.0",
+  "img": "img/12.jpg",
+  "sketchfab": [
+   {
+    "name": "Volkswagen Golf 8. GTI (A8)",
+    "url": "https://sketchfab.com/3d-models/none-e87d7c0f8937481db236529beb5ecab7",
+    "license": "CC Attribution",
+    "faces": 120641,
+    "user": "Mona x Supercars"
+   },
+   {
+    "name": "1992 Volkswagen Golf GTI Mk2",
+    "url": "https://sketchfab.com/3d-models/none-1fb8f26b105445fbaa98ca2577f7067e",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 33821,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "volkswagen Golf 8 R",
+    "url": "https://sketchfab.com/3d-models/none-9d0bd38185c1455aa345bd6611dc7979",
+    "license": "CC Attribution",
+    "faces": 1570812,
+    "user": "DR1KING100K"
+   }
+  ]
+ },
+ {
+  "name": "Volkswagen Passat B8",
+  "make": "Volkswagen Group",
+  "file": "VW Passat B8 Limousine 2.0 TDI Highline.JPG",
+  "page": "https://commons.wikimedia.org/wiki/File:VW_Passat_B8_Limousine_2.0_TDI_Highline.JPG",
+  "author": "TD",
+  "license": "CC BY-SA 3.0",
+  "img": "img/13.jpg",
+  "sketchfab": [
+   {
+    "name": "Volkswagen Passat B8",
+    "url": "https://sketchfab.com/3d-models/none-98c3a29331834026838439c38e5a97e4",
+    "license": "CC Attribution",
+    "faces": 200231,
+    "user": "シRuletăシ"
+   },
+   {
+    "name": "low-poly Volkswagen Passat B8",
+    "url": "https://sketchfab.com/3d-models/none-de203c04b4da40c8beb9a460ffe3eb7e",
+    "license": "CC Attribution",
+    "faces": 12623,
+    "user": "D_U"
+   },
+   {
+    "name": "Volkswagen Passat B8 Variant R- Line 2015",
+    "url": "https://sketchfab.com/3d-models/none-41af8da6d8054229ba1f462cd25ba0b4",
+    "license": "CC Attribution",
+    "faces": 394122,
+    "user": "Nieve5677"
+   }
+  ]
+ },
+ {
+  "name": "Volkswagen Tiguan III",
+  "make": "Volkswagen",
+  "file": "Volkswagen Tiguan III IMG 8388.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Volkswagen_Tiguan_III_IMG_8388.jpg",
+  "author": "Alexander-93",
+  "license": "CC BY-SA 4.0",
+  "img": "img/14.jpg",
+  "sketchfab": [
+   {
+    "name": "2022 Volkswagen Tiguan L - Allspace",
+    "url": "https://sketchfab.com/3d-models/none-c8780d08e8dc4050a1287fa99c31824c",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 812202,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "Volkswagen Tiguan 2020",
+    "url": "https://sketchfab.com/3d-models/none-fc46a721e21440a2a641750007942a13",
+    "license": "CC Attribution",
+    "faces": 192580,
+    "user": "ItsDiyor"
+   },
+   {
+    "name": "2022 Volkswagen Tiguan L 430 PHEV",
+    "url": "https://sketchfab.com/3d-models/none-20a0e5de0477442caaeac8d4f8951101",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 730581,
+    "user": "Ddiaz Design"
+   }
+  ]
+ },
+ {
+  "name": "Škoda Octavia",
+  "make": "Škoda Auto",
+  "file": "Skoda Octavia IV Combi IMG 2617.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Skoda_Octavia_IV_Combi_IMG_2617.jpg",
+  "author": "Alexander Migl",
+  "license": "CC BY-SA 4.0",
+  "img": "img/15.jpg",
+  "sketchfab": [
+   {
+    "name": "2000 Skoda Octavia",
+    "url": "https://sketchfab.com/3d-models/none-892e152237fa4e8bbeb6afb20169f0c2",
+    "license": "CC Attribution",
+    "faces": 51136,
+    "user": "tonielpro520"
+   },
+   {
+    "name": "2019 Skoda Octavia TSI 280",
+    "url": "https://sketchfab.com/3d-models/none-747287e4d7a448948ae7a9ca873f2b4f",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 132555,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "Skoda Octavia RS",
+    "url": "https://sketchfab.com/3d-models/none-852ea89f86e647998b11b7eb9cac6f8a",
+    "license": "CC Attribution",
+    "faces": 218898,
+    "user": "vershinin.nvkz"
+   }
+  ]
+ },
+ {
+  "name": "Škoda Superb III",
+  "make": "Škoda Auto",
+  "file": "2018 Skoda Superb SE L Executive TSi 1.4.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:2018_Skoda_Superb_SE_L_Executive_TSi_1.4.jpg",
+  "author": "Vauxford",
+  "license": "CC BY-SA 4.0",
+  "img": "img/16.jpg",
+  "sketchfab": [
+   {
+    "name": "2017 Skoda Superb",
+    "url": "https://sketchfab.com/3d-models/none-2da5059c3068448b9541eafb930a45a0",
+    "license": "CC Attribution",
+    "faces": 159633,
+    "user": "BHP3D"
+   },
+   {
+    "name": "2009 Skoda Superb",
+    "url": "https://sketchfab.com/3d-models/none-53dfe733a62a4a419a7e50ae1f58b54f",
+    "license": "CC Attribution",
+    "faces": 593699,
+    "user": "BHP3D"
+   },
+   {
+    "name": "2020 Skoda Superb TSI 380",
+    "url": "https://sketchfab.com/3d-models/none-b41979349dc14884906ac8e6c7b51bd9",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 216031,
+    "user": "Ddiaz Design"
+   }
+  ]
+ },
+ {
+  "name": "Toyota RAV4",
+  "make": "Toyota",
+  "file": "2025 Toyota RAV4 Hybrid Z Prototype.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:2025_Toyota_RAV4_Hybrid_Z_Prototype.jpg",
+  "author": "TTTNIS",
+  "license": "CC0",
+  "img": "img/17.jpg",
+  "sketchfab": [
+   {
+    "name": "2023 Toyota RAV4 Hybrid",
+    "url": "https://sketchfab.com/3d-models/none-ed155ad0cb7d447085a519eaff9aa2df",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 399174,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "2021 Toyota RAV4 Adventure",
+    "url": "https://sketchfab.com/3d-models/none-34645485dd284ac1b473b52f8a74da6b",
+    "license": "CC Attribution",
+    "faces": 479254,
+    "user": "tonielpro520"
+   },
+   {
+    "name": "2021 Toyota RAV4 Prime Hybrid E-Four",
+    "url": "https://sketchfab.com/3d-models/none-411da54827634c5abd462ab4e9e0eb34",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 274568,
+    "user": "Ddiaz Design"
+   }
+  ]
+ },
+ {
+  "name": "Volvo XC60",
+  "make": "Volvo Cars",
+  "file": "2017 Volvo XC60 Momentum T5 AWD Automatic 2.0 Front.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:2017_Volvo_XC60_Momentum_T5_AWD_Automatic_2.0_Front.jpg",
+  "author": "Vauxford",
+  "license": "CC BY-SA 4.0",
+  "img": "img/18.jpg",
+  "sketchfab": [
+   {
+    "name": "2023 Volvo XC60",
+    "url": "https://sketchfab.com/3d-models/none-986e54be12664ff59d0748d003883ace",
+    "license": "CC Attribution",
+    "faces": 468248,
+    "user": "tonielpro520"
+   },
+   {
+    "name": "Volvo XC60",
+    "url": "https://sketchfab.com/3d-models/none-eb8ce77c64c04339983cdf30593abca3",
+    "license": "CC Attribution",
+    "faces": 547854,
+    "user": "Nieve5677"
+   },
+   {
+    "name": "2023 Volvo XC60 Recharge",
+    "url": "https://sketchfab.com/3d-models/none-c35ef02fd38b48adadc17f117a4a518c",
+    "license": "CC Attribution",
+    "faces": 445644,
+    "user": "Nazh Design ✔"
+   }
+  ]
+ },
+ {
+  "name": "Volvo XC90 II",
+  "make": "Volvo Cars",
+  "file": "2015 Volvo XC90 Inscription fl.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:2015_Volvo_XC90_Inscription_fl.jpg",
+  "author": "Herranderssvensson",
+  "license": "CC BY-SA 3.0",
+  "img": "img/19.jpg",
+  "sketchfab": [
+   {
+    "name": "Volvo XC90 Inscription",
+    "url": "https://sketchfab.com/3d-models/none-e91e35e356ea456ca2c682efe36360b2",
+    "license": "Free Standard",
+    "faces": 488759,
+    "user": "Gerda"
+   },
+   {
+    "name": "Photoscanned Volvo XC90",
+    "url": "https://sketchfab.com/3d-models/none-7520f0e2faa44b21aad13e553413c566",
+    "license": "CC Attribution",
+    "faces": 86574,
+    "user": "Spiicy"
+   },
+   {
+    "name": "2017 Volvo XC90",
+    "url": "https://sketchfab.com/3d-models/none-519668c129344836a1a69f6f5880a89b",
+    "license": "Free Standard",
+    "faces": 12724,
+    "user": "ActsOfDoge"
+   }
+  ]
+ },
+ {
+  "name": "Tesla Model 3",
+  "make": "Tesla",
+  "file": "Tesla Model 3 (2023) Autofrühling Ulm IMG 9282.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Tesla_Model_3_(2023)_Autofr%C3%BChling_Ulm_IMG_9282.jpg",
+  "author": "Alexander-93",
+  "license": "CC BY-SA 4.0",
+  "img": "img/20.jpg",
+  "sketchfab": [
+   {
+    "name": "Tesla M3 model",
+    "url": "https://sketchfab.com/3d-models/none-3a602469d7874d1397efa67182198705",
+    "license": "CC Attribution",
+    "faces": 247368,
+    "user": "wintrez"
+   },
+   {
+    "name": "Tesla model 3",
+    "url": "https://sketchfab.com/3d-models/none-5af35a4772f240039a6e58c58998555b",
+    "license": "CC Attribution",
+    "faces": 684315,
+    "user": "dannzjs"
+   },
+   {
+    "name": "Tesla Model 3",
+    "url": "https://sketchfab.com/3d-models/none-af55c8c948ef4f6586ff4709c3e413a4",
+    "license": "Free Standard",
+    "faces": 624288,
+    "user": "Gerda"
+   }
+  ]
+ },
+ {
+  "name": "Tesla Model Y",
+  "make": "Tesla",
+  "file": "Tesla Model Y (Facelift) – f 05052026.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Tesla_Model_Y_(Facelift)_%E2%80%93_f_05052026.jpg",
+  "author": "© M 93",
+  "license": "CC BY-SA 3.0 de",
+  "img": "img/21.jpg",
+  "sketchfab": [
+   {
+    "name": "2025 Tesla Model Y",
+    "url": "https://sketchfab.com/3d-models/none-619601e7800d418da5922c4fa7833f74",
+    "license": "CC Attribution-NonCommercial",
+    "faces": 307399,
+    "user": "BloxBloger"
+   },
+   {
+    "name": "2026 Tesla Model Y Performance",
+    "url": "https://sketchfab.com/3d-models/none-8a0bc252f9da4015a02a7bd99efd4847",
+    "license": "CC Attribution-NonCommercial",
+    "faces": 346321,
+    "user": "BloxBloger"
+   },
+   {
+    "name": "Tesla Model Y 2021",
+    "url": "https://sketchfab.com/3d-models/none-c0a86cac582d4b33aba0fb1b1912d970",
+    "license": "CC Attribution",
+    "faces": 2432138,
+    "user": "763468712"
+   }
+  ]
+ },
+ {
+  "name": "Ford Focus Mk III",
+  "make": "Ford Motor Company",
+  "file": "2017 Ford Focus Zetec Edition 1.0 Front.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:2017_Ford_Focus_Zetec_Edition_1.0_Front.jpg",
+  "author": "Vauxford",
+  "license": "CC BY-SA 4.0",
+  "img": "img/22.jpg",
+  "sketchfab": [
+   {
+    "name": "Ford Focus Sedan",
+    "url": "https://sketchfab.com/3d-models/none-9bc5e9e5edd5487f97d8501a22c3c8b5",
+    "license": "CC Attribution",
+    "faces": 804653,
+    "user": "BHP3D"
+   },
+   {
+    "name": "2016 Ford Focus RS",
+    "url": "https://sketchfab.com/3d-models/none-27e25fcead154e62a1dd8e92ccedb691",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 85963,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "Ford Focus Sedan",
+    "url": "https://sketchfab.com/3d-models/none-ed2e9355b8a64e6a8700973df1a5b8f0",
+    "license": "CC Attribution",
+    "faces": 93740,
+    "user": "Luquita"
+   }
+  ]
+ },
+ {
+  "name": "Opel Astra L",
+  "make": "Opel",
+  "file": "Opel Astra L 1X7A1907.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Opel_Astra_L_1X7A1907.jpg",
+  "author": "Alexander-93",
+  "license": "CC BY-SA 4.0",
+  "img": "img/23.jpg",
+  "sketchfab": [
+   {
+    "name": "1998 Opel Astra",
+    "url": "https://sketchfab.com/3d-models/none-83801648aa334f5fa23b4b4473649728",
+    "license": "CC Attribution",
+    "faces": 591334,
+    "user": "tonielpro520"
+   },
+   {
+    "name": "Opel Astra L",
+    "url": "https://sketchfab.com/3d-models/none-edbde7324cac4ca0b9b87848e688b7ba",
+    "license": "Free Standard",
+    "faces": 933768,
+    "user": "Gerda"
+   },
+   {
+    "name": "Opel Astra G",
+    "url": "https://sketchfab.com/3d-models/none-f3eed38d0b2143889cbc465769e146cc",
+    "license": "CC Attribution",
+    "faces": 2571979,
+    "user": "SomeKevin"
+   }
+  ]
+ },
+ {
+  "name": "Peugeot 308 III",
+  "make": "Peugeot",
+  "file": "2022 - Peugeot 308 III (C) - 196.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:2022_-_Peugeot_308_III_(C)_-_196.jpg",
+  "author": "A.BourgeoisP",
+  "license": "CC BY-SA 4.0",
+  "img": "img/24.jpg",
+  "sketchfab": [
+   {
+    "name": "2022 | Peugeot 308",
+    "url": "https://sketchfab.com/3d-models/none-0d9c9c265bec42678bfc269c1a8cebc3",
+    "license": "CC Attribution",
+    "faces": 913136,
+    "user": "kevin (ケビン)"
+   },
+   {
+    "name": "Peugeot 308 GT 2022",
+    "url": "https://sketchfab.com/3d-models/none-fa9cc490373148038254ad1a4c23720a",
+    "license": "Free Standard",
+    "faces": 905140,
+    "user": "Gerda"
+   },
+   {
+    "name": "Peugeot 308 SW",
+    "url": "https://sketchfab.com/3d-models/none-e538cff86fef432287ec93c7c6f91931",
+    "license": "Free Standard",
+    "faces": 257177,
+    "user": "Gerda"
+   }
+  ]
+ },
+ {
+  "name": "Renault Clio V",
+  "make": "Renault",
+  "file": "Renault Clio V Genf 2019 1Y7A5590.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Renault_Clio_V_Genf_2019_1Y7A5590.jpg",
+  "author": "Alexander Migl",
+  "license": "CC BY-SA 4.0",
+  "img": null,
+  "sketchfab": [
+   {
+    "name": "RENAULT CLIO MOSCHINO",
+    "url": "https://sketchfab.com/3d-models/none-bdf95d3a877141209bd05d5a8c490472",
+    "license": "Free Standard",
+    "faces": 161351,
+    "user": "farins"
+   },
+   {
+    "name": "2003 Renault Clio V6 Renault Sport",
+    "url": "https://sketchfab.com/3d-models/none-75ac0f329c3b4396906be58636581a10",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 41116,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "2020 Renault Clio",
+    "url": "https://sketchfab.com/3d-models/none-4c528fefa4154004bbc6305faf71836c",
+    "license": "CC Attribution",
+    "faces": 328579,
+    "user": "tonielpro520"
+   }
+  ]
+ },
+ {
+  "name": "Kia Sportage",
+  "make": "Jiangsu Yueda Kia Motors",
+  "file": "KIA SPORTAGE (NP) China (26).jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:KIA_SPORTAGE_(NP)_China_(26).jpg",
+  "author": "Dinkun Chen",
+  "license": "CC BY-SA 4.0",
+  "img": "img/26.jpg",
+  "sketchfab": [
+   {
+    "name": "Kia Sportage",
+    "url": "https://sketchfab.com/3d-models/none-98a84407998a4bc6b4dee912b289f15b",
+    "license": "CC Attribution",
+    "faces": 374469,
+    "user": "karaman.arman"
+   },
+   {
+    "name": "Kia Sportage (SL 2011-2014)",
+    "url": "https://sketchfab.com/3d-models/none-f15205a444fb42f7a2ebf6765a36026a",
+    "license": "CC Attribution",
+    "faces": 81985,
+    "user": "farhad.Guli"
+   },
+   {
+    "name": "2023 Kia Sportage GT-Line",
+    "url": "https://sketchfab.com/3d-models/none-b89d15a4b99349d78c06dcc38e79fd60",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 587223,
+    "user": "Ddiaz Design"
+   }
+  ]
+ },
+ {
+  "name": "Hyundai Tucson",
+  "make": "Hyundai Motor Company",
+  "file": "Hyundai Tucson (NX4, SWB) Facelift IMG 2344.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Hyundai_Tucson_(NX4,_SWB)_Facelift_IMG_2344.jpg",
+  "author": "Alexander-93",
+  "license": "CC BY-SA 4.0",
+  "img": "img/27.jpg",
+  "sketchfab": [
+   {
+    "name": "2025 Hyundai Tucson Plug-In Hybrid",
+    "url": "https://sketchfab.com/3d-models/none-48b4df148c3a4ec2875ab082c197b42f",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 406347,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "2022 Hyundai Tucson L 270T",
+    "url": "https://sketchfab.com/3d-models/none-6e69767042b2453ea91d533076821636",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 331797,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "2015 Hyundai Tucson",
+    "url": "https://sketchfab.com/3d-models/none-7674a3bd168a451daf73fc0a33d39589",
+    "license": "CC Attribution",
+    "faces": 33152,
+    "user": "razor24"
+   }
+  ]
+ },
+ {
+  "name": "Nissan Qashqai (J10)",
+  "make": "Nissan",
+  "file": "2007 Nissan Qashqai Acenta 2WD 1.6.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:2007_Nissan_Qashqai_Acenta_2WD_1.6.jpg",
+  "author": "Vauxford",
+  "license": "CC BY-SA 4.0",
+  "img": "img/28.jpg",
+  "sketchfab": [
+   {
+    "name": "2018 Nissan Qashqai",
+    "url": "https://sketchfab.com/3d-models/none-ef3c5a9808b44b44ac600ad4431b8680",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 154936,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "2024 Nissan Qashqai Glory",
+    "url": "https://sketchfab.com/3d-models/none-3d26c0e62eaa46f1bbead9f3073540b3",
+    "license": "CC Attribution-NonCommercial-ShareAlike",
+    "faces": 316342,
+    "user": "Ddiaz Design"
+   },
+   {
+    "name": "2022 Nissan Qashqai",
+    "url": "https://sketchfab.com/3d-models/none-3c7f36f8e67d43b7b26e901880806503",
+    "license": "CC Attribution",
+    "faces": 451743,
+    "user": "tonielpro520"
+   }
+  ]
+ },
+ {
+  "name": "Porsche 911 T",
+  "make": "Porsche",
+  "file": "1970-1 Porsche 911T (11031414455).jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:1970-1_Porsche_911T_(11031414455).jpg",
+  "author": "Andrew Bone from Weymouth, England",
+  "license": "CC BY 2.0",
+  "img": "img/29.jpg",
+  "sketchfab": [
+   {
+    "name": "(FREE) Porsche 911 Carrera 4S",
+    "url": "https://sketchfab.com/3d-models/none-d01b254483794de3819786d93e0e1ebf",
+    "license": "CC Attribution-ShareAlike",
+    "faces": 652780,
+    "user": "Lionsharp Studios"
+   },
+   {
+    "name": "FREE 1975 Porsche 911 (930) Turbo",
+    "url": "https://sketchfab.com/3d-models/none-8568d9d14a994b9cae59499f0dbed21e",
+    "license": "CC Attribution",
+    "faces": 241265,
+    "user": "Lionsharp Studios"
+   },
+   {
+    "name": "Porsche 911 with interior",
+    "url": "https://sketchfab.com/3d-models/none-877b1bc1739f4a2bb65d62fd7ffd9f75",
+    "license": "CC Attribution",
+    "faces": 424043,
+    "user": "n.brizitskaya"
+   }
+  ]
+ }
+]

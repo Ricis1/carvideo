@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>CarVideo demo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<style>
+:root { --accent:#1c69d4; --icon:#5aa0ff; --badge:#0e2a52; --bg:#000; --p1:#1c1c1e; --p2:#2c2c2e; --p3:#3a3a3c; --mut:#a1a1aa; --fg:#fff; color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: dark; }
+html,body { margin:0; height:100%; background:#000; color:var(--fg); font-family:Inter,-apple-system,system-ui,sans-serif; overflow:hidden; -webkit-tap-highlight-color:transparent; }
+button, input { font:inherit; color:inherit; }
+button { cursor:pointer; }
+button:focus-visible, input:focus-visible { outline:3px solid #9cc8ff; outline-offset:2px; }
+#wrap { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; }
+#stage { width:844px; height:390px; position:relative; overflow:hidden; background:var(--bg); border-radius:22px; transform-origin:center center; flex:0 0 auto; }
+.screen { position:absolute; inset:0; display:none; }
+.screen.on { display:flex; }
+.row { display:flex; flex-direction:row; }
+.col { display:flex; flex-direction:column; }
+.chip { border:0; border-radius:12px; background:var(--p2); }
+.mut { color:var(--mut); }
+.num { font-variant-numeric:tabular-nums; }
+.scroll { overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:thin; }
+/* home */
+#home { flex-direction:column; gap:10px; padding:12px 14px; box-sizing:border-box; }
+.badge { width:44px; height:44px; flex:0 0 44px; border-radius:22px; background:var(--badge); box-shadow:inset 0 0 0 2px var(--icon); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
+.dest { display:flex; align-items:center; gap:8px; min-height:44px; padding:0 8px; border:0; border-radius:10px; background:var(--p2); font-size:14px; text-align:left; }
+.tile { border:0; border-radius:14px; background:var(--p2); display:flex; align-items:center; justify-content:center; gap:10px; font-size:15px; font-weight:700; }
+.tile.primary { background:var(--accent); }
+#carStage { flex:1 1 0; min-width:0; position:relative; border-radius:18px; overflow:hidden; background:radial-gradient(ellipse 70% 60% at 50% 75%, color-mix(in srgb, var(--icon) 22%, transparent), transparent 70%), #0c0d10; }
+#carStage canvas, #carStage img { position:absolute; inset:0; width:100%; height:100%; }
+#carStage img.cut { object-fit:contain; -webkit-mask-image:none; mask-image:none; inset:6% 6% 10% 6%; width:88%; height:84%; filter:drop-shadow(0 18px 18px rgba(0,0,0,.55)); }
+#carStage .floor { position:absolute; left:18%; right:18%; bottom:9%; height:14%; border-radius:50%; background:radial-gradient(ellipse at center, rgba(0,0,0,.75), transparent 70%); }
+#carStage img { object-fit:cover; -webkit-mask-image:radial-gradient(ellipse 75% 80% at 50% 50%,#000 55%,transparent 100%); mask-image:radial-gradient(ellipse 75% 80% at 50% 50%,#000 55%,transparent 100%); }
+#carMsg { position:absolute; left:0; right:0; top:46%; text-align:center; font-size:13px; color:#c7cbd3; }
+/* drive */
+#drive { gap:0; padding:8px; box-sizing:border-box; }
+#drive.dragging .pane { transition:none; }
+#divider { flex:0 0 16px; order:1; display:flex; align-items:center; justify-content:center; touch-action:none; cursor:col-resize; position:relative; z-index:10; }
+#divider i { width:5px; height:56px; border-radius:3px; background:#636366; display:block; transition:background .15s, height .15s; }
+#divider:hover i, #drive.dragging #divider i { background:var(--accent); height:80px; }
+#mapView { touch-action:none; cursor:grab; }
+#drive.panning #mapView { cursor:grabbing; }
+.mapbtns { position:absolute; left:6px; top:70px; display:flex; flex-direction:column; gap:6px; z-index:6; }
+.mapbtns .ovbtn { position:static; width:40px; height:40px; font-size:22px; font-weight:600; }
+#recenter { display:none; }
+#drive.free #recenter { display:flex; }
+#meMap { position:absolute; width:26px; height:26px; margin:-13px 0 0 -13px; display:none; }
+#drive.free #me { display:none; }
+#drive.free #meMap { display:block; }
+#sbGrip { cursor:move; touch-action:none; }
+.pane { position:relative; border-radius:16px; overflow:hidden; background:#111; transition:flex-basis .3s ease; }
+#mapPane { flex:0 0 29%; min-width:0; order:0; }
+#mediaPane { flex:1 1 0; min-width:0; order:2; }
+#drive.mapRight #mapPane { order:2; } #drive.mapRight #mediaPane { order:0; }
+.ovbtn { position:absolute; width:44px; height:44px; border:0; border-radius:12px; background:rgba(28,28,30,.86); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); z-index:5; }
+#mapView { position:absolute; inset:0; overflow:hidden; perspective:420px; }
+#mapLayer { position:absolute; left:50%; top:50%; width:1400px; height:1400px; transform-origin:0 0; }
+#mapSvg { position:absolute; left:0; top:0; }
+#me { position:absolute; left:50%; top:62%; width:30px; height:30px; margin:-15px 0 0 -15px; z-index:3; filter:drop-shadow(0 2px 4px rgba(0,0,0,.6)); }
+#banner { position:absolute; left:6px; right:6px; top:6px; border-radius:12px; background:#17803a; padding:8px 10px; display:none; gap:8px; align-items:center; z-index:6; }
+#banner.on { display:flex; }
+#addr { position:absolute; left:6px; right:6px; bottom:6px; display:flex; gap:6px; z-index:6; }
+#addr input { flex:1 1 0; min-width:0; height:40px; border:0; border-radius:10px; background:rgba(28,28,30,.92); padding:0 10px; font-size:14px; }
+#addr button { height:40px; padding:0 12px; border:0; border-radius:10px; background:var(--accent); font-weight:700; font-size:14px; white-space:nowrap; }
+#eta { position:absolute; left:6px; right:6px; bottom:52px; display:none; justify-content:space-between; align-items:center; background:rgba(28,28,30,.92); border-radius:10px; padding:6px 8px; font-size:12px; z-index:6; }
+#eta.on { display:flex; }
+#video { position:absolute; inset:0; width:100%; height:100%; display:block; }
+#vidbar { position:absolute; left:0; right:0; bottom:0; padding:8px 10px; display:flex; align-items:center; gap:10px; background:linear-gradient(transparent, rgba(0,0,0,.75)); z-index:4; }
+#vidbar .bar { flex:1 1 0; height:4px; border-radius:2px; background:rgba(255,255,255,.3); overflow:hidden; }
+#vidbar .bar i { display:block; height:100%; width:0; background:#ff0033; }
+#stopped { position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; gap:8px; background:rgba(0,0,0,.78); z-index:7; text-align:center; padding:0 16px; }
+#stopped.on { display:flex; }
+#speedBox { position:absolute; right:8px; bottom:46px; width:190px; padding:8px 10px; border-radius:12px; background:rgba(28,28,30,.92); z-index:8; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+#speedBox input { width:100%; accent-color:var(--accent); }
+#speedo { position:absolute; right:8px; top:70px; width:56px; height:56px; border-radius:28px; background:rgba(28,28,30,.92); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:6; box-shadow:inset 0 0 0 2px var(--p3); }
+#speedo.over { box-shadow:inset 0 0 0 3px #ff453a; }
+/* spotify */
+#spot { position:absolute; inset:0; display:none; background:linear-gradient(160deg,#1e3a2a,#121212 60%); padding:14px; box-sizing:border-box; gap:14px; }
+#spot.on { display:flex; }
+#drive.big #spot { flex-direction:column; padding:10px; gap:8px; }
+#drive.big #spot .tracks, #drive.big #spot .art { display:none; }
+.art { width:150px; height:150px; flex:0 0 150px; border-radius:10px; background:linear-gradient(135deg,#1ed760,#0b6b3a 60%,#062a17); display:flex; align-items:flex-end; padding:10px; box-sizing:border-box; font-weight:800; font-size:18px; line-height:1.1; box-shadow:0 8px 24px rgba(0,0,0,.5); }
+.trk { display:flex; align-items:center; gap:10px; min-height:40px; padding:0 8px; border:0; border-radius:8px; background:transparent; text-align:left; font-size:14px; }
+.trk.on { background:rgba(255,255,255,.08); color:#1ed760; }
+.pbtn { width:44px; height:44px; border:0; border-radius:22px; background:#fff; color:#000; display:flex; align-items:center; justify-content:center; }
+/* sheets */
+.sheet { position:absolute; inset:0; display:none; z-index:20; background:rgba(0,0,0,.55); }
+.sheet.on { display:block; }
+.panel { position:absolute; right:0; top:0; bottom:0; width:430px; background:var(--p1); box-sizing:border-box; padding:12px 14px; display:flex; flex-direction:column; gap:12px; }
+.sec { display:flex; flex-direction:column; gap:6px; }
+.sec > span { font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.05em; font-weight:600; }
+.box { border-radius:12px; background:var(--p2); }
+.seg { display:grid; gap:2px; padding:3px; border-radius:12px; background:var(--p2); }
+.seg button { height:38px; border:0; border-radius:9px; background:transparent; font-size:13px; font-weight:500; }
+.seg button[aria-pressed="true"] { background:#636366; font-weight:700; }
+.lrow { display:flex; align-items:center; justify-content:space-between; min-height:46px; padding:0 14px; font-size:15px; gap:10px; }
+.lrow + .lrow { border-top:1px solid var(--p3); }
+.sw { width:52px; height:32px; border-radius:16px; border:0; background:#48484a; position:relative; flex:0 0 52px; }
+.sw::after { content:""; position:absolute; top:2px; left:2px; width:28px; height:28px; border-radius:14px; background:#fff; transition:left .2s; }
+.sw[aria-checked="true"] { background:#30d158; }
+.sw[aria-checked="true"]::after { left:22px; }
+.step { display:flex; gap:2px; }
+.step button { width:46px; height:40px; border:0; background:var(--p3); font-size:22px; }
+.step button:first-child { border-radius:10px 0 0 10px; } .step button:last-child { border-radius:0 10px 10px 0; }
+#picker .panel { width:100%; flex-direction:row; gap:10px; background:#000; }
+.plist { border-radius:12px; background:var(--p1); padding:4px; }
+.pitem { display:flex; flex-direction:column; align-items:flex-start; width:100%; min-height:40px; padding:6px 10px; border:0; border-radius:8px; background:transparent; font-size:14px; text-align:left; }
+.pitem[aria-current="true"] { background:var(--p3); }
+.pitem small { font-size:11px; color:var(--mut); }
+#rotate { position:fixed; inset:0; display:none; align-items:center; justify-content:center; flex-direction:column; gap:10px; background:#000; z-index:50; text-align:center; padding:24px; box-sizing:border-box; font-size:17px; }
+#rotate button { height:48px; padding:0 18px; border:0; border-radius:12px; background:var(--accent); font-weight:700; }
+@media (orientation: portrait) and (max-width: 700px) { #rotate.ask { display:flex; } }
+#limSign { position:absolute; right:12px; top:132px; width:44px; height:44px; border-radius:22px; background:#fff; color:#000; box-shadow:inset 0 0 0 5px #e0242b; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; z-index:6; }
+#speedo.road { box-shadow:inset 0 0 0 3px #ff9f0a; }
+#camWarn { position:absolute; left:6px; right:62px; top:66px; border-radius:12px; background:rgba(28,28,30,.95); padding:6px 10px; display:none; align-items:center; gap:8px; z-index:7; font-size:13px; box-shadow:inset 0 0 0 2px #ff9f0a; }
+#camWarn.on { display:flex; }
+#camWarn.bad { background:#b3261e; box-shadow:none; animation:pulse .8s infinite alternate; }
+@keyframes pulse { from { opacity:1; } to { opacity:.7; } }
+#drive.free #camWarn, #banner:not(.on) ~ #camWarn { top:6px; }
+.mapbtns { top:118px !important; }
+.list { display:flex; flex-direction:column; gap:6px; }
+.litem { display:flex; align-items:center; gap:10px; min-height:48px; padding:6px 10px; border-radius:12px; background:var(--p2); font-size:14px; }
+.litem .grow { flex:1 1 0; min-width:0; display:flex; flex-direction:column; }
+.litem .grow > * { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.stat { flex:1 1 0; border-radius:12px; background:var(--p2); padding:8px 10px; display:flex; flex-direction:column; gap:2px; }
+.stat b { font-size:20px; font-variant-numeric:tabular-nums; }
+.stat span { font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.04em; }
+.del { width:40px; height:40px; border:0; border-radius:10px; background:transparent; color:#ff6961; font-size:20px; }
+.tile { font-size:14px !important; gap:8px !important; }
+.toast { position:absolute; left:50%; top:10px; transform:translateX(-50%); background:rgba(28,28,30,.95); padding:8px 14px; border-radius:10px; font-size:13px; z-index:40; display:none; }
+.toast.on { display:block; }
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+
+  <!-- HOME -->
+  <section class="screen on" id="home" aria-label="Pagrindinis meniu">
+    <div class="row" style="align-items:center; gap:10px; height:44px; flex:0 0 44px">
+      <span class="badge" id="hBadge">BMW</span>
+      <span class="col" style="flex:1 1 0; min-width:0"><span id="hBrand" style="font-size:17px; font-weight:700">BMW</span><span id="hModel" class="mut" style="font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">M8 Coupe (3D)</span></span>
+      <span class="col" style="align-items:flex-end"><span id="clock" class="num" style="font-size:24px; font-weight:800">--:--</span><span class="row" style="gap:5px; align-items:center"><span id="dn" style="display:flex"></span><span id="date" class="mut" style="font-size:12px"></span></span></span>
+    </div>
+    <div class="row" style="flex:1 1 0; min-height:0; gap:12px">
+      <div class="col" style="width:170px; flex:0 0 170px; gap:6px; padding:10px; box-sizing:border-box; border-radius:16px; background:var(--p1)">
+        <span class="mut" style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em">Paskutiniai tikslai</span>
+        <div class="col" id="dests" style="gap:6px"></div>
+      </div>
+      <div id="carStage"><span id="carMsg"></span></div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; height:60px; flex:0 0 60px">
+      <button class="tile primary" data-go="map"><svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><defs><linearGradient id="gNav" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5ab0ff"/><stop offset="1" stop-color="#0a5fd8"/></linearGradient></defs><rect width="36" height="36" rx="9" fill="url(#gNav)"/><path d="M26.5 9.5 L10 16.6 L17 18.9 L19.4 26 Z" fill="#fff"/></svg>Navigacija</button>
+      <button class="tile" data-go="video"><svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="9" fill="#fff"/><rect x="5" y="9.5" width="26" height="17" rx="5.5" fill="#ff0033"/><path d="M15.5 13.6 L22.6 18 L15.5 22.4 Z" fill="#fff"/></svg>YouTube</button>
+      <button class="tile" data-go="spotify"><svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="9" fill="#121212"/><circle cx="18" cy="18" r="12" fill="#1ed760"/><g fill="none" stroke="#121212" stroke-linecap="round"><path d="M11.2 14.6 Q18.5 12.4 25 15.8" stroke-width="2.3"/><path d="M12 18.6 Q18 16.9 23.6 19.6" stroke-width="1.9"/><path d="M12.8 22.3 Q17.6 21 22 23" stroke-width="1.6"/></g></svg>Spotify</button>
+      <button class="tile" data-go="trips"><svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><defs><linearGradient id="gTrip" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb340"/><stop offset="1" stop-color="#e07a00"/></linearGradient></defs><rect width="36" height="36" rx="9" fill="url(#gTrip)"/><path d="M9 26 C 9 18, 27 20, 27 11" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="1 4.5"/><circle cx="9" cy="26" r="3" fill="#fff"/><path d="M27 6.5a4 4 0 0 1 4 4c0 3-4 6.5-4 6.5s-4-3.5-4-6.5a4 4 0 0 1 4-4z" fill="#fff"/></svg>Kelionės</button>
+      <button class="tile" data-go="settings"><svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><defs><linearGradient id="gSet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a9aa2"/><stop offset="1" stop-color="#55555c"/></linearGradient></defs><rect width="36" height="36" rx="9" fill="url(#gSet)"/><g transform="translate(18 18)" fill="#fff"><rect x="-2" y="-11" width="4" height="5" rx="1"/><rect x="-2" y="-11" width="4" height="5" rx="1" transform="rotate(45)"/><rect x="-2" y="-11" width="4" height="5" rx="1" transform="rotate(90)"/><rect x="-2" y="-11" width="4" height="5" rx="1" transform="rotate(135)"/><rect x="-2" y="-11" width="4" height="5" rx="1" transform="rotate(180)"/><rect x="-2" y="-11" width="4" height="5" rx="1" transform="rotate(225)"/><rect x="-2" y="-11" width="4" height="5" rx="1" transform="rotate(270)"/><rect x="-2" y="-11" width="4" height="5" rx="1" transform="rotate(315)"/><circle r="7.6"/></g><circle cx="18" cy="18" r="3.4" fill="#6e6e76"/></svg>Nustatymai</button>
+    </div>
+  </section>
+
+  <!-- DRIVE -->
+  <section class="screen" id="drive" aria-label="Važiavimas">
+    <div class="pane" id="mapPane">
+      <div id="mapView"><div id="mapLayer"><svg id="mapSvg" width="1400" height="1400" viewBox="0 0 1400 1400" aria-hidden="true"></svg><svg id="meMap" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="14" fill="#fff"/><circle cx="15" cy="15" r="11.5" fill="var(--accent)"/></svg></div></div>
+      <div class="mapbtns"><button class="ovbtn" id="zIn" aria-label="Priartinti">+</button><button class="ovbtn" id="zOut" aria-label="Nutolinti">−</button><button class="ovbtn" id="recenter" aria-label="Grįžti prie automobilio"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button></div>
+      <svg id="me" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="14" fill="#fff"/><circle cx="15" cy="15" r="11.5" fill="var(--accent)"/><path d="M15 6 L21.5 22 L15 18.5 L8.5 22 Z" fill="#fff"/></svg>
+      <div id="banner"><svg id="bArrow" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><div class="col" style="min-width:0"><span id="bDist" class="num" style="font-size:19px; font-weight:800">—</span><span id="bText" style="font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis"></span></div></div>
+      <div id="eta"><span><span class="mut">Atvyksite</span> <b id="etaClock" class="num">—</b> · <b id="etaMin" class="num">—</b> <span class="mut">min</span> · <span id="etaKm" class="num">—</span> <span class="mut">km</span></span><button id="endRoute" style="border:0; background:#ff453a; border-radius:8px; height:30px; padding:0 10px; font-size:12px; font-weight:700">Baigti</button></div>
+      <form id="addr" autocomplete="off"><input id="addrIn" placeholder="Įvesk adresą" aria-label="Adresas" enterkeyhint="go"><button type="submit">Vesti</button></form>
+      <div id="limSign" aria-label="Kelio greičio riba"><span id="limNum">50</span></div>
+      <div id="camWarn" role="alert"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="14" height="10" rx="2"/><circle cx="9" cy="12" r="2.6"/><path d="M16 10l5-2v8l-5-2"/></svg><div class="col" style="min-width:0"><b id="camDist" class="num">—</b><span id="camText" style="font-size:11px">Greičio kamera</span></div></div>
+      <div id="speedo" aria-live="off"><span id="spdNum" class="num" style="font-size:18px; font-weight:800">0</span><span class="mut" style="font-size:9px">km/h</span></div>
+    </div>
+    <div id="divider" role="separator" aria-orientation="vertical" aria-label="Tempk, kad pakeistum dydį" tabindex="0"><i></i></div>
+    <div class="pane" id="mediaPane">
+      <canvas id="video" width="560" height="374" aria-label="Pavyzdinis video"></canvas>
+      <div id="vidbar"><button id="vPlay" class="ovbtn" style="position:static; width:36px; height:36px; border-radius:18px" aria-label="Groti / pauzė"></button><div class="bar"><i id="vProg"></i></div><span id="vTime" class="num" style="font-size:12px">0:00</span></div>
+      <div id="stopped"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#ff453a" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 9v6M15 9v6" stroke-linecap="round"/></svg><b style="font-size:17px">Video sustabdytas</b><span class="mut" style="font-size:13px">Greitis viršija <span id="stopLim">300</span> km/h. Video tęsis, kai sulėtinsi.</span></div>
+    <div id="driveBtns" style="position:absolute; right:8px; top:8px; left:8px; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; z-index:9; pointer-events:none">
+        <button class="ovbtn" style="position:static; pointer-events:auto" id="favBtn" aria-label="Mėgstami YouTube"><svg width="22" height="22" viewBox="0 0 24 24" fill="#ffd60a" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3-4.6-4.4 6.3-.9z"/></svg></button><button class="ovbtn" style="position:static; pointer-events:auto" id="mediaToggle" aria-label="Video / Spotify"></button>
+        <button class="ovbtn" style="position:static; pointer-events:auto" id="swap" aria-label="Sukeisti žemėlapį ir video"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4L3 8l4 4M3 8h13M17 20l4-4-4-4M21 16H8"/></svg></button>
+        <button class="ovbtn" style="position:static; pointer-events:auto" id="homeBtn" aria-label="Pradžia"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></button>
+        <button class="ovbtn" style="position:static; pointer-events:auto" data-go="settings" aria-label="Nustatymai"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+      </div>
+      <div id="spot">
+        <div class="art">Kelionės<br>grojaraštis</div>
+        <div class="col" style="flex:1 1 0; min-width:0; gap:8px">
+          <div class="col"><b id="sTitle" style="font-size:18px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">Takelis 1</b><span class="mut" style="font-size:13px">Pavyzdinis atlikėjas</span></div>
+          <div class="row" style="align-items:center; gap:10px"><span id="sCur" class="num mut" style="font-size:11px">0:00</span><div style="flex:1 1 0; height:4px; border-radius:2px; background:rgba(255,255,255,.25)"><i id="sProg" style="display:block; height:100%; width:0; background:#fff; border-radius:2px"></i></div><span id="sDur" class="num mut" style="font-size:11px">3:30</span></div>
+          <div class="row" style="align-items:center; justify-content:center; gap:18px">
+            <button class="ovbtn" style="position:static; background:transparent" id="sPrev" aria-label="Ankstesnis"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+            <button class="pbtn" id="sPlay" aria-label="Groti / pauzė"></button>
+            <button class="ovbtn" style="position:static; background:transparent" id="sNext" aria-label="Kitas"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+          </div>
+          <div class="col tracks scroll" id="sList" style="flex:1 1 0; min-height:0"></div>
+        </div>
+      </div>
+    </div>
+    <button class="ovbtn" id="toHome" style="left:16px; top:16px; display:none" aria-label="Į pradžią"></button>
+    <div id="speedBox"><div class="row" id="sbGrip" style="justify-content:space-between; font-size:12px; margin-bottom:2px"><span class="mut">Greičio imitacija</span><b class="num"><span id="spdVal">50</span> km/h</b></div><input type="range" id="spd" min="0" max="320" step="5" value="50" aria-label="Imituojamas greitis"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <div class="sheet" id="settings" role="dialog" aria-label="Nustatymai">
+    <div class="panel">
+      <div class="row" style="align-items:center; justify-content:space-between"><b style="font-size:20px">Nustatymai</b><button id="setDone" style="height:40px; padding:0 12px; border:0; background:transparent; color:#64a8ff; font-size:16px; font-weight:600">Gerai</button></div>
+      <div class="col scroll" style="gap:14px; flex:1 1 0; min-height:0; padding-right:2px">
+        <div class="sec"><span>Automobilis</span><div class="box">
+          <div class="lrow"><span>Modelis</span><button id="openPicker" style="border:0; background:transparent; color:#c7cbd3; display:flex; align-items:center; gap:6px; min-height:40px; max-width:240px"><span id="setCar" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis">BMW M8 (3D)</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
+        </div></div>
+        <div class="sec"><span>Tema</span><div class="seg" id="themeSeg" style="grid-template-columns:repeat(5,1fr)"></div></div>
+        <div class="sec"><span>Video sustoja, kai greitis viršija</span><div class="box lrow" style="padding-right:8px"><b class="num" style="font-size:17px"><span id="limVal">300</span> km/h</b><div class="step"><button id="limDn" aria-label="Mažinti">−</button><button id="limUp" aria-label="Didinti">+</button></div></div></div>
+        <div class="sec"><span>Žemėlapis</span><div class="seg" id="mapSeg" style="grid-template-columns:repeat(3,1fr)"></div></div>
+        <div class="sec"><span>Naktinis režimas</span><div class="seg" id="nightSeg" style="grid-template-columns:repeat(3,1fr)"></div><span id="sunInfo" class="mut" style="font-size:12px; text-transform:none; letter-spacing:0; font-weight:400"></span></div>
+        <div class="sec"><span>Kuro sąnaudos</span><div class="box lrow" style="padding-right:8px"><b class="num" style="font-size:17px"><span id="consVal">6.5</span> l/100 km</b><div class="step"><button id="consDn" aria-label="Mažinti">−</button><button id="consUp" aria-label="Didinti">+</button></div></div></div>
+        <div class="sec"><span>Įspėjimai</span><div class="box"><div class="lrow"><span>Greičio kameros</span><button class="sw" id="camSw" role="switch" aria-checked="true" aria-label="Greičio kameros"></button></div><div class="lrow"><span>Garsinis signalas</span><button class="sw" id="beepSw" role="switch" aria-checked="true" aria-label="Garsinis signalas"></button></div></div></div>
+        <div class="sec"><span>Maršrutas</span><div class="box"><div class="lrow"><span>Balso nurodymai</span><button class="sw" id="voiceSw" role="switch" aria-checked="true" aria-label="Balso nurodymai"></button></div><div class="lrow"><span>Rodyti greičio imitaciją</span><button class="sw" id="simSw" role="switch" aria-checked="true" aria-label="Greičio imitacija"></button></div></div></div>
+        <div class="sec"><span>Apie</span><div class="box" style="padding:10px 14px; font-size:12px; line-height:1.45; color:#c7cbd3">Tai demo naršyklėje: žemėlapis, video ir muzika yra imitacija. Tikroje programėlėje bus Apple žemėlapiai, tikras GPS greitis, YouTube ir tavo failai.<br>3D modelis: „2020 BMW M8 Coupe“, Outlaw Games™ (Sketchfab), CC BY-NC 4.0. Automobilių nuotraukos: Wikimedia Commons (autoriai nurodyti pasirinkime). Sąrašas: Wikidata.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAR PICKER -->
+  <div class="sheet" id="picker" role="dialog" aria-label="Automobilio pasirinkimas">
+    <div class="panel">
+      <div class="col" style="width:200px; flex:0 0 200px; gap:8px; min-height:0">
+        <div class="row" style="gap:6px"><button id="pkBack" class="chip" style="width:40px; height:40px; flex:0 0 40px" aria-label="Atgal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><input id="pkQ" type="search" placeholder="Ieškoti modelio" autocomplete="off" style="flex:1 1 0; min-width:0; height:40px; box-sizing:border-box; padding:0 10px; border:0; border-radius:10px; background:var(--p2); font-size:14px"></div>
+        <div id="pkMakes" class="plist scroll" style="flex:1 1 0; min-height:0"></div>
+      </div>
+      <div class="col" style="width:230px; flex:0 0 230px; gap:6px; min-height:0">
+        <span id="pkCount" class="mut" style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; height:16px"></span>
+        <div id="pkModels" class="plist scroll" style="flex:1 1 0; min-height:0"></div>
+      </div>
+      <div class="col" style="flex:1 1 0; min-width:0; gap:8px; border-radius:16px; background:#0c0d10; padding:10px; box-sizing:border-box">
+        <div style="flex:1 1 0; min-height:0; border-radius:12px; overflow:hidden; background:var(--p1); display:flex; align-items:center; justify-content:center; position:relative"><img id="pkImg" alt="" style="width:100%; height:100%; object-fit:contain; display:none"><span id="pkNo" class="mut" style="font-size:13px; padding:0 12px; text-align:center">Pasirink modelį</span></div>
+        <div class="col" style="gap:2px"><b id="pkName" style="font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis"></b><span id="pkMeta" class="mut" style="font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis"></span><span id="pk3d" style="font-size:11px; color:#c7cbd3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis"></span></div>
+        <button id="pkUse" style="height:44px; border:0; border-radius:12px; background:var(--accent); font-size:15px; font-weight:700">Pasirinkti</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet" id="trips" role="dialog" aria-label="Kelionės">
+    <div class="panel" style="width:520px">
+      <div class="row" style="align-items:center; justify-content:space-between"><b style="font-size:20px">Kelionių istorija</b><button class="closeSheet" style="height:40px; padding:0 12px; border:0; background:transparent; color:#64a8ff; font-size:16px; font-weight:600">Gerai</button></div>
+      <div class="row" style="gap:8px"><div class="stat"><b id="tKm">0</b><span>km iš viso</span></div><div class="stat"><b id="tAvg">0</b><span>vid. km/h</span></div><div class="stat"><b id="tFuel">0</b><span>l kuro</span></div><div class="stat"><b id="tN">0</b><span>kelionės</span></div></div>
+      <div class="list scroll" id="tList" style="flex:1 1 0; min-height:0"></div>
+      <span class="mut" style="font-size:11px">Kuras skaičiuojamas pagal sąnaudas nustatymuose. Demo kelionės vyksta greičiau nei realiai.</span>
+    </div>
+  </div>
+  <div class="sheet" id="favs" role="dialog" aria-label="Mėgstami YouTube">
+    <div class="panel" style="width:460px">
+      <div class="row" style="align-items:center; justify-content:space-between"><b style="font-size:20px">Mėgstami YouTube</b><button class="closeSheet" style="height:40px; padding:0 12px; border:0; background:transparent; color:#64a8ff; font-size:16px; font-weight:600">Gerai</button></div>
+      <div class="list scroll" id="fList" style="flex:1 1 0; min-height:0"></div>
+      <form id="fAdd" class="col" style="gap:6px" autocomplete="off"><span class="mut" style="font-size:12px; text-transform:uppercase; letter-spacing:.05em; font-weight:600">Pridėti</span><div class="row" style="gap:6px"><input id="fName" placeholder="Pavadinimas" style="flex:0 0 140px; height:40px; border:0; border-radius:10px; background:var(--p2); padding:0 10px; font-size:14px; min-width:0"><input id="fUrl" placeholder="YouTube nuoroda (kanalas, grojaraštis ar video)" style="flex:1 1 0; min-width:0; height:40px; border:0; border-radius:10px; background:var(--p2); padding:0 10px; font-size:14px"><button type="submit" style="height:40px; padding:0 14px; border:0; border-radius:10px; background:var(--accent); font-weight:700">+</button></div></form>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+</div></div>
+<div id="rotate"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M3 12a9 9 0 0 1 4-7.5M21 12a9 9 0 0 1-4 7.5" stroke-linecap="round"/></svg><span>Pasuk telefoną gulsčiai – taip atrodys kaip automobilyje.</span><button id="rotOk">Rodyti vis tiek</button></div>
+
+<script id="curated" type="application/json">__CURATED__</script>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const stage=$('stage');
+/* ---------- fit stage ---------- */
+function fit(){ const s=Math.min(innerWidth/844, innerHeight/390); stage.style.transform='scale('+s+')'; stage.dataset.scale=s; }
+addEventListener('resize',fit); fit();
+try{ if(!sessionStorage.getItem('rotOk')) $('rotate').classList.add('ask'); }catch(e){ $('rotate').classList.add('ask'); }
+$('rotOk').onclick=()=>{ $('rotate').classList.remove('ask'); try{sessionStorage.setItem('rotOk','1');}catch(e){} };
+
+/* ---------- state ---------- */
+const DEF={limit:300, map:'sat3d', voice:true, sim:true, theme:'auto', splitNav:0.71, splitMedia:0.29, mapRight:false, speedPos:null, night:'auto', cons:6.5, cams:true, beep:true, trips:[], favs:[{name:'Mano grojaraštis',type:'Grojaraštis',url:''},{name:'Mėgstamas kanalas',type:'Kanalas',url:''}], car:{id:'m8', make:'BMW', name:'M8 Coupe (3D)', src:null}};
+let st=DEF;
+try{ st=Object.assign({},DEF,JSON.parse(localStorage.getItem('carvideo-demo')||'{}')); }catch(e){}
+const save=()=>{ try{ localStorage.setItem('carvideo-demo',JSON.stringify(st)); }catch(e){} };
+const THEMES={
+  bmw:{label:'BMW',badge:'BMW',accent:'#1c69d4',icon:'#5aa0ff',bg:'#0e2a52'},
+  audi:{label:'Audi',badge:'AUDI',accent:'#bb0a30',icon:'#ff6b7d',bg:'#3a0a14'},
+  mercedes:{label:'Mercedes',badge:'MB',accent:'#4a5a66',icon:'#a9c4d4',bg:'#262e34'},
+  none:{label:'Be temos',badge:'CV',accent:'#17803a',icon:'#64a8ff',bg:'#1c1c1e'}
+};
+function themeKey(){ if(st.theme!=='auto') return st.theme; const m=(st.car.make||'').toLowerCase(); if(m.includes('bmw'))return 'bmw'; if(m.includes('audi'))return 'audi'; if(m.includes('mercedes'))return 'mercedes'; return 'none'; }
+function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('on'),1800); }
+
+/* ---------- home ---------- */
+const DESTS=[{n:'Namai',i:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'},{n:'Darbas',i:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'},{n:'Akropolis',i:'<path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>'}];
+$('dests').innerHTML=DESTS.map(d=>'<button class="dest" data-dest="'+d.n+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--icon)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d.i+'</svg><span style="flex:1 1 0">'+d.n+'</span></button>').join('');
+function tick(){ const d=new Date(); $('clock').textContent=d.toLocaleTimeString('lt-LT',{hour:'2-digit',minute:'2-digit'}); const w=d.toLocaleDateString('lt-LT',{weekday:'long'}); $('date').textContent=w.charAt(0).toUpperCase()+w.slice(1)+' · '+d.toLocaleDateString('lt-LT',{month:'long',day:'numeric'}); }
+tick(); setInterval(tick,10000);
+function applyTheme(){ const t=THEMES[themeKey()]; const r=document.documentElement.style; r.setProperty('--accent',t.accent); r.setProperty('--icon',t.icon); r.setProperty('--badge',t.bg); $('hBadge').textContent=t.badge; $('hBrand').textContent=st.car.make||t.label; $('hModel').textContent=st.car.name; $('setCar').textContent=(st.car.make?st.car.make+' ':'')+st.car.name; }
+let three=null;
+function showCar(){
+  const cs=$('carStage'); cs.querySelectorAll('img,canvas,.floor').forEach(e=>e.remove()); $('carMsg').textContent='';
+  if(st.car.id==='m8'){ load3D(cs); return; }
+  const img=new Image(); img.alt=st.car.make+' '+st.car.name; img.onerror=()=>{img.remove(); $('carMsg').textContent='Nuotrauka čia neužsikrauna – programėlėje bus';}; img.src=st.car.src; if(st.car.cut){ img.className='cut'; const fl=document.createElement('div'); fl.className='floor'; cs.prepend(fl); } cs.appendChild(img);
+}
+async function load3D(cs){
+  $('carMsg').textContent='Kraunamas 3D modelis…';
+  try{
+    if(!three){ const T=await import('three'); const {GLTFLoader}=await import('three/addons/loaders/GLTFLoader.js'); const {RoomEnvironment}=await import('three/addons/environments/RoomEnvironment.js');
+      const parts=await Promise.all(['m8-part1.txt','m8-part2.txt'].map(u=>fetch(u).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})));
+      const s=atob(parts.join('')); const bin=new Uint8Array(s.length); for(let i=0;i<s.length;i++)bin[i]=s.charCodeAt(i);
+      const gltf=await new Promise((res,rej)=>new GLTFLoader().parse(bin.buffer,'',res,rej));
+      three={T,RoomEnvironment,scene:gltf.scene}; }
+    if(st.car.id!=='m8') return;
+    const {T,RoomEnvironment}=three; const W=cs.clientWidth||600,H=cs.clientHeight||230;
+    const renderer=new T.WebGLRenderer({antialias:true,alpha:true}); renderer.setPixelRatio(Math.min(3,(window.devicePixelRatio||1)*(+stage.dataset.scale||1))); renderer.setSize(W,H,false);
+    renderer.toneMapping=T.ACESFilmicToneMapping; renderer.outputColorSpace=T.SRGBColorSpace; cs.querySelectorAll('canvas').forEach(e=>e.remove()); cs.prepend(renderer.domElement);
+    const scene=new T.Scene(); const pm=new T.PMREMGenerator(renderer); scene.environment=pm.fromScene(new RoomEnvironment(),0.04).texture;
+    scene.add(new T.HemisphereLight(0xffffff,0x202020,1.0)); const sun=new T.DirectionalLight(0xffffff,1.5); sun.position.set(3,5,4); scene.add(sun);
+    const car=three.scene; const box=new T.Box3().setFromObject(car); const size=box.getSize(new T.Vector3()); car.position.sub(box.getCenter(new T.Vector3())); scene.add(car);
+    const alongX=size.x>=size.z, len=alongX?size.x:size.z; const cam=new T.PerspectiveCamera(22,W/H,len/100,len*100);
+    const hfov=2*Math.atan(Math.tan(T.MathUtils.degToRad(cam.fov)/2)*cam.aspect), vfov=T.MathUtils.degToRad(cam.fov);
+    const ang=T.MathUtils.degToRad(58), elev=T.MathUtils.degToRad(16), R=size.length()/2, dist=(R/Math.sin(Math.min(vfov,hfov)/2))*0.56;
+    const flat=dist*Math.cos(elev), lift=dist*Math.sin(elev);
+    if(alongX) cam.position.set(-flat*Math.sin(ang),lift,flat*Math.cos(ang)); else cam.position.set(flat*Math.cos(ang),lift,flat*Math.sin(ang));
+    cam.lookAt(0,-size.y*0.12,0); const draw=()=>renderer.render(scene,cam); $('carMsg').textContent=''; draw(); setTimeout(draw,300);
+  }catch(e){ $('carMsg').textContent='3D nepavyko užkrauti'; }
+}
+
+/* ---------- navigation between screens ---------- */
+let screen='home', media='video';
+function go(where){
+  if(where==='settings'){ openSettings(); return; }
+  if(where==='trips'){ renderTrips(); $('trips').classList.add('on'); return; }
+  if(where==='home'){ $('home').classList.add('on'); $('drive').classList.remove('on'); screen='home'; showCar(); return; }
+  $('home').classList.remove('on'); $('drive').classList.add('on'); screen='drive';
+  if(where==='map'){ mode='splitNav'; }
+  if(where==='video'){ mode='splitMedia'; setMedia('video'); }
+  if(where==='spotify'){ mode='splitMedia'; setMedia('spotify'); }
+  layout();
+  drawMap(); updateMedia();
+}
+document.addEventListener('click',e=>{ const b=e.target.closest('[data-go]'); if(b) go(b.dataset.go); const d=e.target.closest('[data-dest]'); if(d){ go('map'); startRoute(d.dataset.dest); } });
+$('homeBtn').onclick=()=>go('home');
+let mode='splitMedia';
+function layout(){ const d=$('drive'), f=st[mode]; $('mapPane').style.flexBasis='calc((100% - 16px) * '+f.toFixed(3)+')'; d.classList.toggle('big',f>0.5); d.classList.toggle('mapRight',!!st.mapRight); placeMap(); placeSpeed(); }
+$('swap').onclick=()=>{ st.mapRight=!st.mapRight; save(); layout(); };
+(function(){ const dv=$('divider'), d=$('drive'); let on=false;
+  dv.addEventListener('pointerdown',e=>{ on=true; dv.setPointerCapture(e.pointerId); d.classList.add('dragging'); e.preventDefault(); });
+  dv.addEventListener('pointermove',e=>{ if(!on) return; const r=d.getBoundingClientRect(); let f=(e.clientX-r.left)/r.width; if(st.mapRight) f=1-f; st[mode]=Math.max(0.15,Math.min(0.85,f)); layout(); });
+  const end=()=>{ if(!on) return; on=false; d.classList.remove('dragging'); save(); setTimeout(placeMap,50); };
+  dv.addEventListener('pointerup',end); dv.addEventListener('pointercancel',end);
+  dv.addEventListener('keydown',e=>{ const k={ArrowLeft:-.05,ArrowRight:.05}[e.key]; if(k){ e.preventDefault(); e.stopPropagation(); st[mode]=Math.max(.15,Math.min(.85,st[mode]+(st.mapRight?-k:k))); save(); layout(); } });
+})();
+function placeSpeed(){ const b=$('speedBox'); if(st.speedPos){ b.style.right='auto'; b.style.bottom='auto'; b.style.left=Math.max(0,Math.min(844-206,st.speedPos[0]))+'px'; b.style.top=Math.max(0,Math.min(390-60,st.speedPos[1]))+'px'; } }
+(function(){ const g=$('sbGrip'), b=$('speedBox'); let st0=null;
+  g.addEventListener('pointerdown',e=>{ const sc=+stage.dataset.scale||1; st0={x:e.clientX,y:e.clientY,l:b.offsetLeft,t:b.offsetTop,sc}; g.setPointerCapture(e.pointerId); });
+  g.addEventListener('pointermove',e=>{ if(!st0) return; st.speedPos=[st0.l+(e.clientX-st0.x)/st0.sc, st0.t+(e.clientY-st0.y)/st0.sc]; placeSpeed(); });
+  const end=()=>{ if(st0){ st0=null; save(); } }; g.addEventListener('pointerup',end); g.addEventListener('pointercancel',end);
+})();
+
+/* ---------- map ---------- */
+const svg=$('mapSvg');
+// city grid
+const roads=[]; for(let i=1;i<14;i++){ roads.push([[i*100,0],[i*100,1400]]); roads.push([[0,i*100],[1400,i*100]]); }
+const diag=[[[0,1300],[700,600],[1400,560]],[[200,0],[460,1400]]];
+const blocks=[]; (function(){ let s=7; const r=()=>(s=(s*9301+49297)%233280)/233280; for(let x=0;x<14;x++)for(let y=0;y<14;y++){ blocks.push([x*100+12,y*100+12,76,76,r()]); } })();
+const ROUTES={
+  'Namai':[[700,700],[700,500],[900,500],[900,300],[1100,300],[1100,200]],
+  'Darbas':[[700,700],[500,700],[500,900],[300,900],[300,1100]],
+  'Akropolis':[[700,700],[700,800],[1000,800],[1000,1000],[1200,1000],[1200,1100]]
+};
+let route=null, prog=0, pos=[700,700], heading=0, destName='';
+function routeFor(name){ if(ROUTES[name]) return ROUTES[name]; let h=0; for(const c of name) h=(h*31+c.charCodeAt(0))%9973; const pts=[[700,700]]; let x=700,y=700; for(let k=0;k<4;k++){ const dx=((h>>k)&1)?1:-1; if(k%2===0){ y+=-(100+((h>>(k+2))%3)*100); } else { x+=dx*(100+((h>>(k+3))%3)*100); } x=Math.max(100,Math.min(1300,x)); y=Math.max(100,Math.min(1300,y)); pts.push([x,y]); } return pts; }
+function segLen(a,b){ return Math.hypot(b[0]-a[0],b[1]-a[1]); }
+function totalLen(r){ let t=0; for(let i=1;i<r.length;i++) t+=segLen(r[i-1],r[i]); return t; }
+function at(r,d){ for(let i=1;i<r.length;i++){ const L=segLen(r[i-1],r[i]); if(d<=L){ const f=d/L; return {p:[r[i-1][0]+(r[i][0]-r[i-1][0])*f, r[i-1][1]+(r[i][1]-r[i-1][1])*f], i}; } d-=L; } return {p:r[r.length-1].slice(), i:r.length-1}; }
+const M_PER_UNIT=2.5;
+function drawMap(){
+  const mode=st.map; const sat=mode!=='std'; const day=!isNight();
+  const P= sat ? (day?{bg:'#4a6338',b:['#5d7a45','#8a7d6c','#a19e97','#66804d'],in:'#bdb8ae',rd:'#c9c5bb',w:'#3f7aa8'}:{bg:'#2d3a25',b:['#3d4f2e','#5a5148','#6b6a66','#46553a'],in:'#807d77',rd:'#9a978f',w:'#2f5b7a'})
+             : (day?{bg:'#e9e6df',b:['#cfe3c4','#f6f4ef','#f6f4ef','#f6f4ef'],rd:'#ffffff',w:'#9fc7ea',park:'#cfe3c4',bl:'#f3f1ec'}:{bg:'#1b1d22',b:['#1f3324','#26292f','#26292f','#26292f'],rd:'#3b3f48',w:'#21405e'});
+  let h='<rect width="1400" height="1400" fill="'+P.bg+'"/>';
+  for(const b of blocks){ const c=sat?(b[4]<.35?P.b[0]:b[4]<.6?P.b[1]:b[4]<.8?P.b[2]:P.b[3]):(b[4]<.2?P.b[0]:P.b[1]); h+='<rect x="'+b[0]+'" y="'+b[1]+'" width="'+b[2]+'" height="'+b[3]+'" rx="'+(sat?2:6)+'" fill="'+c+'"/>'; if(sat&&b[4]>.55&&b[4]<.8){ h+='<rect x="'+(b[0]+10)+'" y="'+(b[1]+10)+'" width="'+(b[2]-20)+'" height="'+(b[3]-20)+'" fill="'+P.in+'"/>'; } }
+  const rc=P.rd, rw=sat?14:18;
+  for(const r of roads.concat(diag)) h+='<polyline points="'+r.map(p=>p.join(',')).join(' ')+'" fill="none" stroke="'+rc+'" stroke-width="'+rw+'" stroke-linecap="round" stroke-linejoin="round"/>';
+  h+='<path d="M0 260 Q 400 200 700 330 T 1400 300" fill="none" stroke="'+P.w+'" stroke-width="40"/>';
+  if(route) h+='<polyline points="'+route.map(p=>p.join(',')).join(' ')+'" fill="none" stroke="#0a84ff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="'+route[route.length-1][0]+'" cy="'+route[route.length-1][1]+'" r="14" fill="#ff453a" stroke="#fff" stroke-width="4"/>'+(st.cams&&route.cams?route.cams.map(c=>{const q=at(route,c.d/M_PER_UNIT).p; return '<g transform="translate('+q[0]+','+q[1]+')"><circle r="15" fill="#ff9f0a" stroke="#fff" stroke-width="3"/><rect x="-8" y="-5" width="11" height="10" rx="2" fill="#000"/><path d="M3 -3 L8 -5 L8 5 L3 3Z" fill="#000"/></g>';}).join(''):'');
+  svg.innerHTML=h; placeMap();
+}
+function placeMap(){
+  const pane=$('mapPane'); const W=pane.clientWidth||240, H=pane.clientHeight||374; const three=st.map==='sat3d';
+  const cx=W/2, cy=free?H*0.5:H*0.62; const rot=-heading; const c=free?freeC:pos;
+  const L=$('mapLayer'); L.style.left='0px'; L.style.top='0px';
+  L.style.transform=(three?'translate('+cx+'px,'+cy+'px) rotateX(52deg) ':'translate('+cx+'px,'+cy+'px) ')+'rotate('+rot+'deg) scale('+zoom+') translate('+(-c[0])+'px,'+(-c[1])+'px)';
+  const mm=$('meMap'); mm.style.left=pos[0]+'px'; mm.style.top=pos[1]+'px'; mm.style.transform='scale('+(1/zoom)+')';
+  L.style.transformOrigin='0 0'; $('mapView').style.perspectiveOrigin=cx+'px '+cy+'px';
+  $('me').style.left=cx+'px'; $('me').style.top=cy+'px';
+}
+let zoom=1, free=false, freeC=[700,700];
+function setZoom(z){ zoom=Math.max(0.4,Math.min(3,z)); placeMap(); }
+$('zIn').onclick=()=>setZoom(zoom*1.3); $('zOut').onclick=()=>setZoom(zoom/1.3);
+$('recenter').onclick=()=>{ free=false; $('drive').classList.remove('free'); placeMap(); };
+(function(){ const mv=$('mapView'), ptrs=new Map(); let pinch0=null;
+  mv.addEventListener('pointerdown',e=>{ mv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,[e.clientX,e.clientY]); if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; pinch0={d:Math.hypot(a[0]-b[0],a[1]-b[1]),z:zoom}; } $('drive').classList.add('panning'); });
+  mv.addEventListener('pointermove',e=>{ if(!ptrs.has(e.pointerId)) return; const prev=ptrs.get(e.pointerId); ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+    if(ptrs.size>=2&&pinch0){ const [a,b]=[...ptrs.values()]; setZoom(pinch0.z*Math.hypot(a[0]-b[0],a[1]-b[1])/pinch0.d); return; }
+    const sc=+stage.dataset.scale||1; let dx=(e.clientX-prev[0])/sc, dy=(e.clientY-prev[1])/sc; if(!dx&&!dy) return;
+    if(!free){ free=true; freeC=pos.slice(); $('drive').classList.add('free'); }
+    if(st.map==='sat3d') dy/=Math.cos(52*Math.PI/180);
+    const r=heading*Math.PI/180, mx=(dx*Math.cos(r)-dy*Math.sin(r))/zoom, my=(dx*Math.sin(r)+dy*Math.cos(r))/zoom;
+    freeC=[Math.max(0,Math.min(1400,freeC[0]-mx)),Math.max(0,Math.min(1400,freeC[1]-my))]; placeMap(); });
+  const up=e=>{ ptrs.delete(e.pointerId); if(ptrs.size<2) pinch0=null; if(!ptrs.size) $('drive').classList.remove('panning'); };
+  mv.addEventListener('pointerup',up); mv.addEventListener('pointercancel',up);
+  mv.addEventListener('wheel',e=>{ e.preventDefault(); setZoom(zoom*Math.exp(-e.deltaY*0.0015)); },{passive:false});
+})();
+function startRoute(name){
+  name=(name||'').trim(); if(!name){ toast('Įvesk adresą'); return; }
+  destName=name; route=routeFor(name); free=false; tripStart();
+  route.lims=route.slice(1).map((_,k)=>[50,50,70,90,50][k%5]); route.cams=[]; { let acc=0; for(let k=1;k<route.length;k++){ const L=segLen(route[k-1],route[k])*M_PER_UNIT; if(k%2===0||route.length<=3) route.cams.push({d:acc+L*0.55,lim:route.lims[k-1],warned:false}); acc+=L; } } $('drive').classList.remove('free'); prog=0; pos=route[0].slice(); lastSaid=-1;
+  $('addrIn').value=name; $('banner').classList.add('on'); $('eta').classList.add('on'); drawMap(); updateNav(true);
+  say('Maršrutas į '+name+'. Važiuokite tiesiai.');
+}
+function endRoute(msg){ tripEnd(); route=null; $('camWarn').classList.remove('on','bad'); $('limNum').textContent=50; $('banner').classList.remove('on'); $('eta').classList.remove('on'); drawMap(); if(msg){ toast(msg); say(msg); } }
+$('addr').onsubmit=e=>{ e.preventDefault(); $('addrIn').blur(); startRoute($('addrIn').value); };
+$('endRoute').onclick=()=>endRoute('Maršrutas baigtas');
+const ARROWS={left:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v5"/>',right:'<path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0-6 6v5"/>',straight:'<path d="M12 20V4M6 10l6-6 6 6"/>',flag:'<path d="M5 21V4h11l-2 4 2 4H5"/>'};
+let lastSaid=-1;
+function updateNav(force){
+  if(!route) return; const T=totalLen(route); const a=at(route,prog); const i=a.i;
+  let dir='flag', dist=T-prog, txt='Atvyksite: '+destName;
+  if(i<route.length-1){ const p0=route[i-1],p1=route[i],p2=route[i+1]; const cr=(p1[0]-p0[0])*(p2[1]-p1[1])-(p1[1]-p0[1])*(p2[0]-p1[0]); dir=cr>0?'right':'left';
+    let d=0; for(let k=1;k<=i;k++) d+=segLen(route[k-1],route[k]); dist=d-prog; txt=(dir==='right'?'Sukite dešinėn':'Sukite kairėn'); }
+  const m=Math.max(0,Math.round(dist*M_PER_UNIT/10)*10);
+  $('bArrow').innerHTML=ARROWS[dir]; $('bDist').textContent=m>=1000?(m/1000).toFixed(1)+' km':m+' m'; $('bText').textContent=txt;
+  const left=(T-prog)*M_PER_UNIT; $('etaKm').textContent=(left/1000).toFixed(1); const v=Math.max(speed,20)/3.6; const mins=Math.max(1,Math.round(left/v/60)); $('etaMin').textContent=mins; $('etaClock').textContent=new Date(Date.now()+mins*60000).toLocaleTimeString('lt-LT',{hour:'2-digit',minute:'2-digit'});
+  const lim=route.lims[Math.max(0,Math.min(route.lims.length-1,i-1))]; $('limNum').textContent=lim; roadLim=lim; speedoState();
+  camCheck();
+  if(dir!=='flag' && m<=150 && lastSaid!==i){ lastSaid=i; say('Po '+m+' metrų '+(dir==='right'?'sukite dešinėn':'sukite kairėn')); }
+}
+function say(t){ if(!st.voice||!('speechSynthesis' in window)) return; try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='lt-LT'; const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith('lt')); if(v)u.voice=v; speechSynthesis.speak(u);}catch(e){} }
+
+/* ---------- speed sim ---------- */
+let speed=+$('spd').value;
+$('spd').oninput=()=>{ speed=+$('spd').value; $('spdVal').textContent=speed; $('spdNum').textContent=speed; checkStop(); speedoState(); };
+let roadLim=50;
+function speedoState(){ $('speedo').classList.toggle('road', speed>roadLim && speed<=st.limit); }
+/* ---------- beeps ---------- */
+let actx=null; function beep(f,ms){ if(!st.beep) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); const o=actx.createOscillator(), g=actx.createGain(); o.frequency.value=f; o.type='sine'; g.gain.setValueAtTime(.0001,actx.currentTime); g.gain.exponentialRampToValueAtTime(.25,actx.currentTime+.02); g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+ms/1000); o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime+ms/1000+.05);}catch(e){} }
+/* ---------- cameras ---------- */
+let lastBadBeep=0;
+function camCheck(){ const w=$('camWarn'); if(!st.cams||!route){ w.classList.remove('on','bad'); return; } const here=prog*M_PER_UNIT; const c=route.cams.find(c=>c.d-here>-20&&c.d-here<=300);
+  if(!c){ w.classList.remove('on','bad'); return; }
+  const d=Math.max(0,Math.round((c.d-here)/10)*10); $('camDist').textContent=d+' m'; $('camText').textContent='Greičio kamera · riba '+c.lim+' km/h';
+  if(!c.warned){ c.warned=true; beep(880,180); setTimeout(()=>beep(880,180),260); say('Greičio kamera po '+d+' metrų. Riba '+c.lim+'.'); }
+  const bad=speed>c.lim; w.classList.add('on'); w.classList.toggle('bad',bad); if(bad&&performance.now()-lastBadBeep>1000){ lastBadBeep=performance.now(); beep(1320,140); } }
+/* ---------- trips ---------- */
+let trip=null;
+function tripStart(){ if(trip) tripEnd(); trip={to:destName,start:Date.now(),m:0,s:0,max:0}; }
+function tripTick(dt){ if(!trip||!route) return; trip.m+=speed/3.6*dt*6; trip.s+=dt*6; trip.max=Math.max(trip.max,speed); }
+function tripEnd(){ if(!trip) return; const t=trip; trip=null; if(t.m<50) return; st.trips.unshift({to:t.to,at:t.start,km:+(t.m/1000).toFixed(2),avg:Math.round(t.m/Math.max(1,t.s)*3.6),max:t.max,min:Math.max(1,Math.round(t.s/60)),fuel:+(t.m/1000*st.cons/100).toFixed(2)}); st.trips=st.trips.slice(0,50); save(); }
+function renderTrips(){ const T=st.trips; const km=T.reduce((a,t)=>a+t.km,0), fuel=T.reduce((a,t)=>a+t.fuel,0), mins=T.reduce((a,t)=>a+t.min,0);
+  $('tKm').textContent=km.toFixed(1); $('tFuel').textContent=fuel.toFixed(1); $('tN').textContent=T.length; $('tAvg').textContent=mins?Math.round(km/(mins/60)):0;
+  $('tList').innerHTML=T.length?T.map(t=>'<div class="litem"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--icon)" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg><div class="grow"><b>'+esc(t.to)+'</b><span class="mut" style="font-size:12px">'+new Date(t.at).toLocaleString('lt-LT',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})+' · '+t.min+' min · maks. '+t.max+' km/h</span></div><div class="col" style="align-items:flex-end"><b class="num">'+t.km.toFixed(1)+' km</b><span class="mut num" style="font-size:12px">'+t.avg+' km/h · '+t.fuel.toFixed(2)+' l</span></div></div>').join(''):'<div class="mut" style="padding:20px; text-align:center; font-size:14px">Dar nėra kelionių. Pradėk maršrutą navigacijoje, ir kelionė bus įrašyta pasibaigus.</div>'; }
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+document.querySelectorAll('.closeSheet').forEach(b=>b.onclick=()=>b.closest('.sheet').classList.remove('on'));
+['trips','favs'].forEach(id=>$(id).addEventListener('click',e=>{ if(e.target.id===id) $(id).classList.remove('on'); }));
+/* ---------- favorites ---------- */
+let vTitle='Pavyzdinis video · kelionė pajūriu';
+function favType(u){ if(/[?&]list=/.test(u)) return 'Grojaraštis'; if(/youtube\.com\/(@|channel\/|c\/|user\/)/.test(u)) return 'Kanalas'; return 'Video'; }
+function renderFavs(){ $('fList').innerHTML=st.favs.map((f,i)=>'<div class="litem"><button data-fplay="'+i+'" style="flex:1 1 0; min-width:0; display:flex; align-items:center; gap:10px; border:0; background:transparent; text-align:left; padding:0; min-height:44px"><svg width="30" height="30" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="9" fill="#fff"/><rect x="5" y="9.5" width="26" height="17" rx="5.5" fill="#ff0033"/><path d="M15.5 13.6 L22.6 18 L15.5 22.4 Z" fill="#fff"/></svg><span class="grow"><b>'+esc(f.name)+'</b><span class="mut" style="font-size:12px">'+esc(f.type)+(f.url?' · '+esc(f.url):'')+'</span></span></button><button class="del" data-fdel="'+i+'" aria-label="Pašalinti">×</button></div>').join('')||'<div class="mut" style="padding:16px; text-align:center">Sąrašas tuščias</div>'; }
+$('fList').onclick=e=>{ const p=e.target.closest('[data-fplay]'), d=e.target.closest('[data-fdel]');
+  if(d){ st.favs.splice(+d.dataset.fdel,1); save(); renderFavs(); return; }
+  if(p){ const f=st.favs[+p.dataset.fplay]; vTitle=f.type+' · '+f.name; vT=0; vPlaying=true; setMedia('video'); $('favs').classList.remove('on'); toast('Groja: '+f.name); } };
+$('fAdd').onsubmit=e=>{ e.preventDefault(); const u=$('fUrl').value.trim(), n=$('fName').value.trim()||u; if(!n){ toast('Įvesk pavadinimą arba nuorodą'); return; } st.favs.push({name:n,type:favType(u),url:u}); save(); $('fName').value=''; $('fUrl').value=''; renderFavs(); };
+$('favBtn').onclick=()=>{ renderFavs(); $('favs').classList.add('on'); };
+/* ---------- night mode ---------- */
+function sunTimes(d){ const lat=54.69*Math.PI/180, lng=25.28; const n=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5); const decl=23.44*Math.PI/180*Math.sin(2*Math.PI*(284+n)/365); const ha=Math.acos(Math.max(-1,Math.min(1,(Math.sin(-0.833*Math.PI/180)-Math.sin(lat)*Math.sin(decl))/(Math.cos(lat)*Math.cos(decl)))))*180/Math.PI; const B=2*Math.PI*(n-81)/364, eot=9.87*Math.sin(2*B)-7.53*Math.cos(B)-1.5*Math.sin(B); const noonUTC=720-4*lng-eot; const mk=m=>{ const x=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())); x.setUTCMinutes(Math.round(m)); return x; }; return {rise:mk(noonUTC-4*ha), set:mk(noonUTC+4*ha)}; }
+function isNight(){ if(st.night==='day') return false; if(st.night==='night') return true; const now=new Date(), t=sunTimes(now); return now<t.rise||now>t.set; }
+let wasNight=null;
+function applyNight(){ const n=isNight(); $('dn').innerHTML=n?'<svg width="13" height="13" viewBox="0 0 24 24" fill="#c7cbd3" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="#ffd60a" aria-hidden="true"><circle cx="12" cy="12" r="5"/></svg>'; if(wasNight!==null&&wasNight!==n){ toast(n?'Įjungtas naktinis režimas':'Įjungtas dienos režimas'); } if(wasNight!==n){ wasNight=n; drawMap(); } }
+setInterval(applyNight,60000);
+$('spdNum').textContent=speed;
+function checkStop(){ const over=speed>st.limit; $('speedo').classList.toggle('over',over); $('stopLim').textContent=st.limit; const was=$('stopped').classList.contains('on'); $('stopped').classList.toggle('on',over&&media==='video'); if(over&&!was&&media==='video') toast('Video sustabdytas: greitis '+speed+' km/h'); }
+
+/* ---------- media ---------- */
+const PLAY='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg>', PAUSE='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+let vPlaying=true, vT=0; const VLEN=245;
+let sPlaying=true, sIdx=0, sT=0; const TRACKS=[['Takelis 1',210],['Takelis 2',184],['Takelis 3',236],['Takelis 4',199],['Takelis 5',221]];
+function fmt(s){ s=Math.floor(s); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+function setMedia(m){ media=m; $('spot').classList.toggle('on',m==='spotify'); $('video').style.display=$('vidbar').style.display=(m==='video'?'':'none'); $('mediaToggle').innerHTML=m==='video'?'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1ed760" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff5a4f" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="4"/><path d="M10 9l5 3-5 3z" fill="#ff5a4f"/></svg>'; $('mediaToggle').setAttribute('aria-label',m==='video'?'Perjungti į Spotify':'Perjungti į video'); checkStop(); updateMedia(); }
+$('mediaToggle').onclick=()=>setMedia(media==='video'?'spotify':'video');
+$('vPlay').onclick=()=>{ vPlaying=!vPlaying; updateMedia(); };
+$('sPlay').onclick=()=>{ sPlaying=!sPlaying; updateMedia(); };
+$('sNext').onclick=()=>{ sIdx=(sIdx+1)%TRACKS.length; sT=0; updateMedia(); };
+$('sPrev').onclick=()=>{ if(sT>3) sT=0; else sIdx=(sIdx+TRACKS.length-1)%TRACKS.length; sT=0; updateMedia(); };
+function updateMedia(){
+  $('vPlay').innerHTML=vPlaying?PAUSE:PLAY; $('sPlay').innerHTML=sPlaying?PAUSE:PLAY;
+  $('sTitle').textContent=TRACKS[sIdx][0]; $('sDur').textContent=fmt(TRACKS[sIdx][1]);
+  $('sList').innerHTML=TRACKS.map((t,i)=>'<button class="trk'+(i===sIdx?' on':'')+'" data-trk="'+i+'"><span class="num mut" style="width:16px">'+(i+1)+'</span><span style="flex:1 1 0">'+t[0]+'</span><span class="num mut" style="font-size:12px">'+fmt(t[1])+'</span></button>').join('');
+}
+$('sList').onclick=e=>{ const b=e.target.closest('[data-trk]'); if(b){ sIdx=+b.dataset.trk; sT=0; sPlaying=true; updateMedia(); } };
+const cv=$('video'), cx2=cv.getContext('2d');
+function drawVideo(t){
+  const W=cv.width,H=cv.height; const g=cx2.createLinearGradient(0,0,0,H); g.addColorStop(0,'#203a5c'); g.addColorStop(.5,'#f0a35e'); g.addColorStop(.52,'#2a2a2a'); g.addColorStop(1,'#151515'); cx2.fillStyle=g; cx2.fillRect(0,0,W,H);
+  cx2.fillStyle='#ffd27a'; cx2.beginPath(); cx2.arc(W*.7,H*.42,26,0,7); cx2.fill();
+  cx2.fillStyle='#1b2433'; for(let i=0;i<9;i++){ const x=((i*97-t*8)%(W+120)+W+120)%(W+120)-60; cx2.fillRect(x,H*.5-30-(i%3)*14,40,30+(i%3)*14); }
+  const hz=H*.51; cx2.fillStyle='#333'; cx2.beginPath(); cx2.moveTo(W*.46,hz); cx2.lineTo(W*.54,hz); cx2.lineTo(W*.95,H); cx2.lineTo(W*.05,H); cx2.fill();
+  cx2.fillStyle='#f5f5f0'; for(let k=0;k<8;k++){ const f=((k/8)+t*.35)%1; const y=hz+(H-hz)*f*f; const w=2+10*f*f, h=4+30*f*f; cx2.fillRect(W/2-w/2,y,w,h); }
+  cx2.fillStyle='rgba(0,0,0,.45)'; cx2.fillRect(0,0,W,40); cx2.fillStyle='#fff'; cx2.font='600 16px Inter, sans-serif'; cx2.fillText(vTitle,14,26);
+}
+/* ---------- loop ---------- */
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(.1,(now-last)/1000); last=now;
+  if(screen==='drive'){
+    const stopped=$('stopped').classList.contains('on');
+    if(media==='video'){ if(vPlaying&&!stopped){ vT=(vT+dt)%VLEN; } drawVideo(vPlaying&&!stopped?now/1000:vT); $('vProg').style.width=(vT/VLEN*100)+'%'; $('vTime').textContent=fmt(vT); }
+    if(sPlaying){ sT+=dt; if(sT>=TRACKS[sIdx][1]){ sIdx=(sIdx+1)%TRACKS.length; sT=0; updateMedia(); } } $('sCur').textContent=fmt(sT); $('sProg').style.width=(sT/TRACKS[sIdx][1]*100)+'%';
+    tripTick(dt); if(route){ const T=totalLen(route); prog=Math.min(T, prog+ (speed/3.6)*dt/M_PER_UNIT*6); const a=at(route,prog); pos=a.p; const i=Math.min(a.i,route.length-1); const p0=route[Math.max(0,i-1)], p1=route[i]; if(p0!==p1){ const hd=Math.atan2(p1[0]-p0[0], -(p1[1]-p0[1]))*180/Math.PI; let d=hd-heading; while(d>180)d-=360; while(d<-180)d+=360; heading+=d*Math.min(1,dt*4);} placeMap(); updateNav(); if(prog>=T){ endRoute('Atvykote: '+destName); } }
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* ---------- settings ---------- */
+function openSettings(){ renderSettings(); $('settings').classList.add('on'); }
+$('setDone').onclick=()=>{ $('settings').classList.remove('on'); if(screen==='drive') drawMap(); };
+$('settings').onclick=e=>{ if(e.target.id==='settings') $('setDone').onclick(); };
+function seg(el,opts,cur,on){ el.innerHTML=opts.map(o=>'<button aria-pressed="'+(o[0]===cur)+'" data-v="'+o[0]+'">'+o[1]+'</button>').join(''); el.onclick=e=>{ const b=e.target.closest('button'); if(b){ on(b.dataset.v); } }; }
+function renderSettings(){
+  $('limVal').textContent=st.limit;
+  seg($('mapSeg'),[['std','Įprastas'],['sat','Satelitas'],['sat3d','Satelitas 3D']],st.map,v=>{ st.map=v; save(); renderSettings(); drawMap(); });
+  seg($('themeSeg'),[['auto','Auto'],['bmw','BMW'],['audi','Audi'],['mercedes','MB'],['none','Be']],st.theme,v=>{ st.theme=v; save(); applyTheme(); renderSettings(); });
+  seg($('nightSeg'),[['auto','Automatiškai'],['day','Diena'],['night','Naktis']],st.night,v=>{ st.night=v; save(); renderSettings(); applyNight(); });
+  { const t=sunTimes(new Date()), f=x=>x.toLocaleTimeString('lt-LT',{hour:'2-digit',minute:'2-digit'}); $('sunInfo').textContent='Šiandien Vilniuje saulė teka '+f(t.rise)+', leidžiasi '+f(t.set)+'. Automatiškai: naktinis nuo saulėlydžio.'; }
+  $('consVal').textContent=st.cons.toFixed(1); $('camSw').setAttribute('aria-checked',st.cams); $('beepSw').setAttribute('aria-checked',st.beep);
+  $('voiceSw').setAttribute('aria-checked',st.voice); $('simSw').setAttribute('aria-checked',st.sim); $('speedBox').style.display=st.sim?'':'none';
+  applyTheme();
+}
+$('limDn').onclick=()=>{ st.limit=Math.max(0,st.limit-5); save(); renderSettings(); checkStop(); };
+$('limUp').onclick=()=>{ st.limit=Math.min(300,st.limit+5); save(); renderSettings(); checkStop(); };
+$('voiceSw').onclick=()=>{ st.voice=!st.voice; save(); renderSettings(); if(!st.voice&&'speechSynthesis' in window) speechSynthesis.cancel(); };
+$('consDn').onclick=()=>{ st.cons=Math.max(2,+(st.cons-0.5).toFixed(1)); save(); renderSettings(); };
+$('consUp').onclick=()=>{ st.cons=Math.min(25,+(st.cons+0.5).toFixed(1)); save(); renderSettings(); };
+$('camSw').onclick=()=>{ st.cams=!st.cams; save(); renderSettings(); drawMap(); };
+$('beepSw').onclick=()=>{ st.beep=!st.beep; save(); renderSettings(); if(st.beep) beep(880,150); };
+$('simSw').onclick=()=>{ st.sim=!st.sim; save(); renderSettings(); };
+
+/* ---------- car picker ---------- */
+let curated=[]; try{ curated=JSON.parse($('curated').textContent); }catch(e){}
+const POP='Populiarūs';
+let catalog=null, pMake=POP, sel=null;
+const clean=m=>m.replace(/ (AG|Group|Motor Company|Motors|Auto|Cars|Automobile|Motor Corporation|Corporation)$/,'');
+const commons=f=>'https://commons.wikimedia.org/wiki/Special:FilePath/'+encodeURIComponent(f)+'?width=640';
+const M8={id:'m8',make:'BMW',name:'M8 Coupe (3D)',src:null,credit:'3D modelis: Outlaw Games™, CC BY-NC 4.0 (Sketchfab)',sf:[]};
+const pop=[M8].concat(curated.map((c,i)=>{ const mk=clean(c.make); return {id:'c'+i,make:mk,name:c.name.startsWith(mk)?c.name.slice(mk.length).trim():c.name,src:c.img?('cars/'+c.img.split('/').pop()):commons(c.file),cut:!!c.cut,credit:(c.author||'nežinomas')+', '+(c.license||'')+' (Wikimedia Commons)',sf:c.sketchfab||[]}; }));
+const fromRow=r=>{ const mk=clean(r[0]); return {id:'w'+r[1],make:mk,name:r[1].startsWith(mk)?r[1].slice(mk.length).trim():r[1],year:r[2],src:commons(r[3]),credit:'Wikimedia Commons',sf:null}; };
+function pItems(){ const q=$('pkQ').value.trim().toLowerCase();
+  if(q){ const base=pop.filter(x=>(x.make+' '+x.name).toLowerCase().includes(q)); return catalog? base.concat(catalog.filter(r=>r[1].toLowerCase().includes(q)).map(fromRow).filter(x=>!base.some(b=>b.make+b.name===x.make+x.name))) : base; }
+  if(pMake===POP||!catalog) return pop; return catalog.filter(r=>clean(r[0])===pMake).map(fromRow); }
+function btn(t,sub,cur,on){ const b=document.createElement('button'); b.className='pitem'; b.setAttribute('aria-current',!!cur); const s=document.createElement('span'); s.textContent=t; s.style.cssText='white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%'; b.appendChild(s); if(sub){ const m=document.createElement('small'); m.textContent=sub; b.appendChild(m);} b.onclick=on; return b; }
+function drawMakes(){ const box=$('pkMakes'); box.textContent=''; box.appendChild(btn(POP+' ('+pop.length+')','',pMake===POP,()=>{pMake=POP;$('pkQ').value='';drawMakes();drawModels();}));
+  if(!catalog){ const s=document.createElement('div'); s.className='mut'; s.style.cssText='padding:10px;font-size:12px'; s.textContent='Kraunamas visas sąrašas…'; box.appendChild(s); return; }
+  const cnt={}; catalog.forEach(r=>{const m=clean(r[0]);cnt[m]=(cnt[m]||0)+1;}); Object.keys(cnt).sort((a,b)=>a.localeCompare(b)).forEach(m=>box.appendChild(btn(m+' ('+cnt[m]+')','',m===pMake,()=>{pMake=m;$('pkQ').value='';drawMakes();drawModels();$('pkModels').scrollTop=0;}))); }
+function drawModels(){ const box=$('pkModels'); box.textContent=''; const L=pItems(); $('pkCount').textContent=($('pkQ').value?'Rasta: ':'Modeliai: ')+L.length;
+  L.slice(0,300).forEach(it=>box.appendChild(btn(it.make+' '+it.name,it.year?('nuo '+it.year):(it.id==='m8'?'3D modelis':''),sel&&sel.id===it.id,()=>{pShow(it);drawModels();}))); }
+function pShow(it){ sel=it; const img=$('pkImg'); img.style.display='none';
+  if(it.id==='m8'){ $('pkNo').textContent='3D modelis rodomas pradžios ekrane'; }
+  else { $('pkNo').textContent='Kraunama nuotrauka…'; img.onload=()=>{img.style.display='block';$('pkNo').textContent='';}; img.onerror=()=>{$('pkNo').textContent='Nuotrauka čia neužsikrauna (programėlėje bus)';}; img.src=it.src; }
+  $('pkName').textContent=it.make+' '+it.name; $('pkMeta').textContent=(it.id==='m8'?'':'Nuotrauka: ')+it.credit;
+  $('pk3d').textContent= it.id==='m8' ? '' : it.sf===null ? '3D: tikrinta tik populiariems' : (it.sf.length?'Nemokamas 3D: '+it.sf[0].name+' ('+it.sf[0].license+')':'Nemokamo 3D modelio nerasta'); }
+$('openPicker').onclick=()=>{ $('picker').classList.add('on'); sel=pop.find(p=>p.id===st.car.id)||null; drawMakes(); drawModels(); if(sel) pShow(sel); else pShow(pop[0]);
+  if(!catalog) fetch('cars/catalog.json').then(r=>r.json()).then(d=>{catalog=d; drawMakes(); drawModels();}).catch(()=>{ const b=$('pkMakes'); if(b.lastChild) b.lastChild.textContent='Nepavyko užkrauti sąrašo'; }); };
+$('pkBack').onclick=()=>$('picker').classList.remove('on');
+$('pkQ').addEventListener('input',drawModels);
+$('pkUse').onclick=()=>{ if(!sel) return; st.car={id:sel.id,make:sel.make,name:sel.name,src:sel.src,cut:!!sel.cut}; save(); applyTheme(); renderSettings(); $('picker').classList.remove('on'); toast('Pasirinkta: '+sel.make+' '+sel.name); if(screen==='home') showCar(); };
+
+/* ---------- keyboard ---------- */
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if($('trips').classList.contains('on')||$('favs').classList.contains('on')){ $('trips').classList.remove('on'); $('favs').classList.remove('on'); } else if($('picker').classList.contains('on')) $('picker').classList.remove('on'); else if($('settings').classList.contains('on')) $('setDone').onclick(); else if(screen==='drive') go('home'); } });
+
+/* ---------- init ---------- */
+renderSettings(); setMedia('video'); updateMedia(); showCar(); applyNight(); drawMap(); layout();
+})();
+</script>
+</body>
+</html>

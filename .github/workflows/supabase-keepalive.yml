@@ -1,0 +1,19 @@
+# Nemokamas Supabase projektas „užmiega“ po 7 dienų be veiklos. Šis darbas jį pažadina kas 3 dienas.
+# Veikia tik jei nustatyti SUPABASE_URL ir SUPABASE_KEY (Settings → Secrets and variables → Actions).
+name: Supabase keepalive
+on:
+  schedule:
+    - cron: "17 6 */3 * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping
+        env:
+          URL: ${{ secrets.SUPABASE_URL }}
+          KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          if [ -z "$URL" ]; then echo "Serveris nenustatytas – praleidžiu"; exit 0; fi
+          curl -fsS -X POST "$URL/rest/v1/rpc/alerts_nearby" -H "apikey: $KEY" -H "Authorization: Bearer $KEY" \
+            -H "Content-Type: application/json" -d '{"p_lat":54.68,"p_lon":25.28}' -o /dev/null && echo OK

@@ -1,0 +1,63 @@
+# Nepasirašytas CarVideo.ipa (įdiegimui per iloader / SideStore / AltServer / Sideloadly).
+# Paleidžiamas automatiškai po kiekvieno pakeitimo main šakoje arba rankiniu būdu: Actions → Build IPA → Run workflow.
+# Gatavas failas: Releases → „CarVideo (naujausias)“ → CarVideo.ipa
+# Nebūtina: Settings → Secrets → SUPABASE_URL ir SUPABASE_KEY – bendras vairuotojų pranešimų serveris visiems.
+name: Build IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-ipa
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    env:
+      BUNDLE_ID: com.carvideo.app
+      TEAM_ID: ""
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app || true; xcodebuild -version
+      - run: brew install xcodegen && xcodegen
+      - name: Build (unsigned)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          set -o pipefail
+          xcodebuild -project CarVideo.xcodeproj -scheme CarVideo \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -derivedDataPath build -skipPackagePluginValidation \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            SUPABASE_URL="$SUPABASE_URL" SUPABASE_KEY="$SUPABASE_KEY" \
+            build 2>&1 | tee build.log | grep -E "error:|warning: unre|BUILD (SUCCEEDED|FAILED)" || true
+          test -d build/Build/Products/Release-iphoneos/CarVideo.app
+      - name: Errors
+        if: failure()
+        run: grep -E "error:" build.log | sort -u | head -80 || true
+      - name: Package IPA
+        run: |
+          mkdir Payload
+          cp -R build/Build/Products/Release-iphoneos/CarVideo.app Payload/
+          zip -qry CarVideo.ipa Payload
+          ls -la CarVideo.ipa
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CarVideo-ipa
+          path: CarVideo.ipa
+      - name: Release (viešai parsisiunčiamas failas)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(grep -m1 CFBundleShortVersionString project.yml | sed 's/[^0-9.]//g')
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest CarVideo.ipa --title "CarVideo $V (naujausias)" \
+            --notes "Nepasirašytas failas. Įdiegimas: DIEGIMAS-LINUX.md. Versija $V, $(date -u +%Y-%m-%d)." --latest
