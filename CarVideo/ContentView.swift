@@ -79,7 +79,9 @@ struct ContentView: View {
     @AppStorage("gaugeStyle") private var gaugeStyleRaw = "auto"
     // v7: Apple (čia), Waze arba Google Maps
     @AppStorage("navProvider") private var navProviderRaw = NavProvider.apple.rawValue
-    private var navProvider: NavProvider { NavProvider(rawValue: navProviderRaw) ?? .apple }
+    private var navProvider: NavProvider { .apple }   // v19: navigacija visada programėlės viduje (Waze / Google nebeatidaromi)
+    @State private var showTools = false   // v19
+    @State private var showSearch = false   // v19
     // v8: žemėlapis programėlėje – Apple arba Google (su savo API raktu)
     @AppStorage("mapEngine") private var mapEngine = "apple"
     @AppStorage("googleApiKey") private var googleApiKey = ""
@@ -141,37 +143,39 @@ struct ContentView: View {
             let landscape = geo.size.width > geo.size.height
             if landscape {
                 // Gulsčiai: žemėlapis ir video šalia, riba tarp jų tempiama pirštu.
-                let total = geo.size.width - 16 - 18
+                let total = geo.size.width - 16 - 48   // v19: juosta su mygtukais tarp žemėlapio ir video
                 let frac = bigMap ? splitBig : splitSmall
                 HStack(spacing: 0) {
                     if solo == "video" {
+                        controlRail(total: total, drag: false)
                         mediaPane.frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else if solo == "map" {
                         mapPane.frame(maxWidth: .infinity, maxHeight: .infinity)
+                        controlRail(total: total, drag: false)
                     } else if mapOnRight {
                         mediaPane.frame(maxWidth: .infinity, maxHeight: .infinity)
-                        divider(total: total)
+                        controlRail(total: total, drag: true)
                         mapPane.frame(width: total * frac)
                     } else {
                         mapPane.frame(width: total * frac)
-                        divider(total: total)
+                        controlRail(total: total, drag: true)
                         mediaPane.frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                 }
                 .padding(8)
-                .overlay(alignment: .top) { turnBanner }
             } else {
                 VStack(spacing: 8) {
                     if bigMap {
                         mapPane.frame(maxWidth: .infinity, maxHeight: .infinity)
+                        HStack(spacing: 22) { railButtons }.foregroundStyle(.white).buttonStyle(.plain).frame(height: 36)
                         mediaPane.frame(height: geo.size.height * 0.38)
                     } else {
                         mediaPane.frame(maxWidth: .infinity, maxHeight: .infinity)
+                        HStack(spacing: 22) { railButtons }.foregroundStyle(.white).buttonStyle(.plain).frame(height: 36)
                         mapPane.frame(height: geo.size.height * 0.38)
                     }
                 }
                 .padding(8)
-                .overlay(alignment: .top) { turnBanner }
             }
         }
         .background(Color.black.ignoresSafeArea())
@@ -299,11 +303,7 @@ struct ContentView: View {
     @ViewBuilder
     private var mediaPane: some View {
         ZStack(alignment: .topTrailing) {
-            if musicSplitOn && showMusic { MusicPane(radio: radio) } else { videoPane }
-            if musicSplitOn {
-                Button { showMusic.toggle() } label: { Image(systemName: showMusic ? "play.rectangle.fill" : "music.note").font(.title3).foregroundStyle(.white).frame(width: 44, height: 44).background(.black.opacity(0.55), in: Circle()) }
-                    .padding(8).accessibilityLabel(showMusic ? "Rodyti video" : "Rodyti muziką")
-            }
+            if musicSplitOn && showMusic { MusicPane(radio: radio) } else { videoPane }   // v19: mygtukai perkelti į juostą tarp žemėlapio ir video
         }
     }
 
@@ -341,35 +341,13 @@ struct ContentView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 14))
             }
         }
-        .overlay(alignment: .topTrailing) {
-            Group {
-                Menu {
-                    Button("YouTube") { source = .none }
-                    Button("Failas") { showFilePicker = true }
-                } label: {
-                    Image(systemName: "ellipsis.circle.fill")
-                        .font(.title2).foregroundStyle(.white, .black.opacity(0.6))
-                        .padding(8)
-                }
-            }
-        }
-        // v4: video per visą ekraną; „Pradžia“ grąžina didelį video su žemėlapiu šone.
-        .overlay(alignment: .topLeading) {
-            Group {
-                Button { withAnimation { solo = solo == "video" ? nil : "video" } } label: {
-                    Image(systemName: solo == "video" ? "house.circle.fill" : "arrow.up.left.and.arrow.down.right.circle.fill")
-                        .font(.title2).foregroundStyle(.white, .black.opacity(0.6))
-                        .padding(8)
-                }
-                .accessibilityLabel(solo == "video" ? "Pagrindinis vaizdas" : "Video per visą ekraną")
-            }
-        }
     }
 
     // MARK: Map
 
+    // v19: žemėlapis kaip Waze – paieška viršuje, mygtukai viename stulpelyje dešinėje, mažas spidometras kairėje apačioje.
     private var mapPane: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             ZStack(alignment: .bottomLeading) {
                 Map(position: $camera) {
                     UserAnnotation()
@@ -402,20 +380,8 @@ struct ContentView: View {
                     }
                 }
                 .mapStyle(mapStyle)
-                .overlay(alignment: .trailing) {
-                    if alertsOn {
-                        Button { showReport = true } label: { Image(systemName: "exclamationmark.triangle.fill").font(.title2).foregroundStyle(.white).frame(width: 52, height: 52).background(.orange, in: Circle()) }
-                            .padding(12).accessibilityLabel("Pranešti apie kliūtį")
-                    }
-                }
                 .overlay(alignment: .topLeading) {
                     if let z = zones.active { AvgZoneBox(zone: z.zone, avg: z.avgKmh, left: z.metersLeft).padding(.top, 70).padding(.leading, 12) }
-                }
-                .overlay(alignment: .bottomTrailing) {
-                    if voiceOn {
-                        Button { voice.toggle() } label: { Image(systemName: voice.listening ? "waveform" : "mic.fill").font(.title2).foregroundStyle(.white).frame(width: 52, height: 52).background(voice.listening ? .red : .blue, in: Circle()) }
-                            .padding(12).padding(.bottom, 60).accessibilityLabel("Balso komanda")
-                    }
                 }
                 .overlay {   // v15: be interneto – žemėlapis iš telefono
                     if offlineMaps.useOffline {
@@ -423,29 +389,21 @@ struct ContentView: View {
                             .overlay(alignment: .bottom) { Label("Be interneto · žemėlapis iš telefono", systemImage: "wifi.slash").font(.caption.bold()).padding(8).background(.black.opacity(0.75), in: Capsule()).padding(.bottom, 70) }
                     }
                 }
-                .overlay(alignment: .bottomTrailing) {   // v13: ramus naktinis ekranas
-                    if calmOn {
-                        Button { showCalm = true } label: { Image(systemName: "moon.fill").font(.title3).foregroundStyle(.white).frame(width: 44, height: 44).background(.black.opacity(0.6), in: Circle()) }
-                            .padding(12).padding(.bottom, voiceOn ? 124 : 60).accessibilityLabel("Ramus naktinis ekranas")
-                    }
-                }
-                .overlay(alignment: .top) {
-                    if let (a, m) = roadAlerts.approaching { AlertBanner(alert: a, meters: m) { roadAlerts.vote(stillThere: $0) }.padding(.top, 60) }
-                }
                 .overlay {
                     if useGoogleMap {
                         GoogleMapView(route: nav.route, location: loc.location, night: night)
                     }
                 }
-                .environment(\.colorScheme, night ? .dark : .light)
-                .mapControls {
-                    MapUserLocationButton()
-                    MapCompass()
-                    MapPitchToggle()
+                .overlay(alignment: .top) {
+                    if let (a, m) = roadAlerts.approaching { AlertBanner(alert: a, meters: m) { roadAlerts.vote(stillThere: $0) }.padding(.top, 60) }
                 }
+                .environment(\.colorScheme, night ? .dark : .light)
+                .mapControls { MapScaleView() }   // v19: Apple mygtukai nebedengia mūsų stulpelio
                 .clipShape(RoundedRectangle(cornerRadius: 14))
+                .overlay(alignment: .bottomTrailing) { mapButtonColumn.padding(8) }
+                .overlay(alignment: .top) { if nav.isNavigating { turnBanner } else { searchBar.padding(8).padding(.trailing, 52) } }   // v19: posūkis žemėlapio viršuje, nebedengia YouTube
 
-                infoCluster.padding(8)
+                infoCluster.padding(.leading, 8).padding(.bottom, 26)   // v19: virš Apple „Legal“ užrašo
             }
             .overlay(alignment: .top) {
                 VStack(spacing: 0) {
@@ -453,92 +411,169 @@ struct ContentView: View {
                     weatherWarning
                     fasterRouteOffer
                 }
-            }
-
-            HStack(spacing: 6) {
-                TextField("Įvesk adresą", text: $destination)
-                    .textFieldStyle(.roundedBorder)
-                    .submitLabel(.go)
-                    .onSubmit { startRoute() }
-                if stopsOn {   // v16: kelionė su sustojimais
-                    Button { if multiStop.names.allSatisfy(\.isEmpty) { multiStop.names = ["", destination] }; showStops = true } label: { Image(systemName: "point.topleft.down.to.point.bottomright.curvepath") }
-                        .buttonStyle(.bordered).accessibilityLabel("Kelionė su sustojimais")
-                }
-                if tollsOn || scenicOn {   // v17: maršruto parinktys
-                    Button { showRouteOpts = true } label: { Image(systemName: "slider.horizontal.3") }
-                        .buttonStyle(.bordered).accessibilityLabel("Maršruto parinktys")
-                }
-                if evPlanOn {
-                    Button { showEV = true } label: { Image(systemName: "bolt.car") }.buttonStyle(.bordered).accessibilityLabel("Kelionė elektromobiliu")
-                }
-                Button { withAnimation { solo = solo == "map" ? nil : "map" } } label: {
-                    Image(systemName: solo == "map" ? "house.fill" : "arrow.up.left.and.arrow.down.right")
-                }
-                .buttonStyle(.bordered)
-                .accessibilityLabel(solo == "map" ? "Pagrindinis vaizdas" : "Žemėlapis per visą ekraną")
-                Button { bigMap.toggle() } label: {
-                    Image(systemName: bigMap ? "play.rectangle.fill" : "map.fill")
-                }
-                .buttonStyle(.bordered)
-                Button { showStations = true; Task { await stations.search(near: loc.location) }; Task { await fuelPrices.load(near: loc.location, country: V14.country) } } label: { Image(systemName: "fuelpump.fill") }
-                    .buttonStyle(.bordered)
-                    .accessibilityLabel("Degalinės ir įkrovimas")
-                if let p = parked {
-                    Button {
-                        if parkPhotoOn { showParkDetail = true; return }   // v13: nuotrauka, aukštas, pastaba
-                        withAnimation { camera = .camera(MapCamera(centerCoordinate: p.coordinate, distance: 600, heading: 0, pitch: 0)) }
-                    } label: {
-                        if let end = parkEnd, end > now {
-                            Text("P · \(max(1, Int(end.timeIntervalSince(now) / 60))) min").bold()
-                        } else {
-                            Text("P").bold()
-                        }
-                    }
-                    .buttonStyle(.bordered)
-                    .accessibilityLabel("Kur palikau automobilį")
-                    .contextMenu {
-                        Menu("Parkavimo laikmatis") {
-                            ForEach([15, 30, 60, 120], id: \.self) { m in
-                                Button(m < 60 ? "\(m) min" : "\(m / 60) val.") {
-                                    Task { await ParkingTimer.start(minutes: m); parkEnd = ParkingTimer.end }
-                                }
-                            }
-                            if parkEnd != nil {
-                                Button("Išjungti laikmatį", role: .destructive) { ParkingTimer.cancel(); parkEnd = nil }
-                            }
-                        }
-                        if parkPhotoOn { Button("Nuotrauka, aukštas, pastaba") { showParkDetail = true } }   // v13
-                        Button("Pamiršti vietą", role: .destructive) { parked = nil; ParkingStore.save(nil); ParkingTimer.cancel(); parkEnd = nil; ParkingExtras.clear() }
-                    }
-                }
-                Button { showFavs = true } label: { Image(systemName: "star.fill").foregroundStyle(.yellow) }
-                    .buttonStyle(.bordered)
-                    .accessibilityLabel("Mėgstami YouTube")
-                Button { showTrips = true } label: { Image(systemName: "road.lanes") }
-                    .buttonStyle(.bordered)
-                    .accessibilityLabel("Kelionės")
-                Button { showSettings = true } label: { Image(systemName: "gearshape.fill") }
-                    .buttonStyle(.bordered)
+                .padding(.top, nav.isNavigating ? 84 : 52)
             }
 
             if nav.isNavigating {
-                Button(role: .destructive) { nav.stop(); trips.finish() } label: {
-                    Label("Baigti maršrutą", systemImage: "xmark.circle.fill").frame(maxWidth: .infinity)
+                HStack(spacing: 8) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("\(Int(nav.remainingTime / 60)) min · \(formatDistance(nav.remainingDistance))").font(.headline.monospacedDigit())
+                        Text(destination).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                    }
+                    Spacer(minLength: 4)
+                    Button(role: .destructive) { nav.stop(); trips.finish() } label: { Label("Baigti", systemImage: "xmark") }
+                        .buttonStyle(.borderedProminent).tint(.red)
                 }
-                .buttonStyle(.borderedProminent).tint(.red)
-            } else {
-                Button { startRoute() } label: {
-                    Label(nav.isCalculating ? "Ieškau…" : "Vesti čia", systemImage: "location.north.line.fill")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent).tint(.green)
-                .disabled(destination.trimmingCharacters(in: .whitespaces).isEmpty || nav.isCalculating)
+                .padding(.horizontal, 10).padding(.vertical, 6)
+                .background(Color(white: 0.12), in: RoundedRectangle(cornerRadius: 12))
             }
             if let err = nav.errorText {
                 Text(err).font(.caption).foregroundStyle(.orange)
             }
-
         }
+        .sheet(isPresented: $showTools) { toolsSheet }
+        .sheet(isPresented: $showSearch) {
+            DestinationSearchSheet(location: loc.location, home: homeAddress) { item, title in
+                destination = title
+                camera = .userLocation(followsHeading: true, fallback: .automatic)
+                Task { await nav.start(to: item, from: loc.location) }
+            }
+        }
+    }
+
+    /// v19: „Kur važiuojam?“ – kaip Waze.
+    private var searchBar: some View {
+        Button { showSearch = true } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                Text(nav.isCalculating ? "Ieškau maršruto…" : "Kur važiuojam?").lineLimit(1)
+                Spacer(minLength: 0)
+            }
+            .font(.subheadline.weight(.semibold)).foregroundStyle(.white)
+            .padding(.horizontal, 12).frame(height: 40)
+            .background(.black.opacity(0.72), in: Capsule())
+        }
+        .accessibilityLabel("Ieškoti tikslo")
+    }
+
+    /// v19: visi žemėlapio mygtukai viename stulpelyje – niekas nepersidengia.
+    private var mapButtonColumn: some View {
+        VStack(spacing: 8) {
+            if alertsOn {
+                roundButton("exclamationmark.triangle.fill", bg: .orange, label: "Pranešti apie kliūtį") { showReport = true }
+            }
+            if voiceOn {
+                roundButton(voice.listening ? "waveform" : "mic.fill", bg: voice.listening ? .red : .blue, label: "Balso komanda") { voice.toggle() }
+            }
+            if calmOn {
+                roundButton("moon.fill", bg: .black.opacity(0.65), label: "Ramus naktinis ekranas") { showCalm = true }
+            }
+            roundButton("location.fill", bg: .black.opacity(0.65), label: "Grįžti prie automobilio") {
+                withAnimation { camera = .userLocation(followsHeading: true, fallback: .automatic) }
+            }
+            roundButton("square.grid.2x2.fill", bg: .black.opacity(0.65), label: "Įrankiai") { showTools = true }
+        }
+    }
+
+    private func roundButton(_ icon: String, bg: Color, label: LocalizedStringKey, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: icon).font(.system(size: 17, weight: .semibold)).foregroundStyle(.white)
+                .frame(width: 42, height: 42).background(bg, in: Circle())
+                .overlay(Circle().stroke(.white.opacity(0.15), lineWidth: 1))
+        }
+        .accessibilityLabel(Text(label))
+    }
+
+    /// v19: buvusi mygtukų eilė po žemėlapiu – dabar atskirame lange.
+    private var toolsSheet: some View {
+        NavigationStack {
+            ScrollView {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 140), spacing: 10)], spacing: 10) {
+                    if stopsOn { toolTile("Kelionė su sustojimais", "point.topleft.down.to.point.bottomright.curvepath") { if multiStop.names.allSatisfy(\.isEmpty) { multiStop.names = ["", destination] }; showStops = true } }
+                    if tollsOn || scenicOn { toolTile("Maršruto parinktys", "slider.horizontal.3") { showRouteOpts = true } }
+                    if evPlanOn { toolTile("Kelionė elektromobiliu", "bolt.car") { showEV = true } }
+                    toolTile("Degalinės ir įkrovimas", "fuelpump.fill") { showStations = true; Task { await stations.search(near: loc.location) }; Task { await fuelPrices.load(near: loc.location, country: V14.country) } }
+                    toolTile(solo == "map" ? "Žemėlapis ir video" : "Žemėlapis per visą ekraną", solo == "map" ? "rectangle.split.2x1" : "map") { withAnimation { solo = solo == "map" ? nil : "map" } }
+                    toolTile(bigMap ? "Mažesnis žemėlapis" : "Didesnis žemėlapis", bigMap ? "play.rectangle.fill" : "map.fill") { bigMap.toggle() }
+                    if let p = parked {
+                        toolTile("Kur palikau automobilį", "parkingsign.circle.fill") {
+                            if parkPhotoOn { showParkDetail = true } else { withAnimation { camera = .camera(MapCamera(centerCoordinate: p.coordinate, distance: 600, heading: 0, pitch: 0)) } }
+                        }
+                        Menu {
+                            ForEach([15, 30, 60, 120], id: \.self) { m in
+                                Button(m < 60 ? "\(m) min" : "\(m / 60) val.") { Task { await ParkingTimer.start(minutes: m); parkEnd = ParkingTimer.end } }
+                            }
+                            if parkEnd != nil { Button("Išjungti laikmatį", role: .destructive) { ParkingTimer.cancel(); parkEnd = nil } }
+                            Button("Pamiršti vietą", role: .destructive) { parked = nil; ParkingStore.save(nil); ParkingTimer.cancel(); parkEnd = nil; ParkingExtras.clear() }
+                        } label: { tileLabel(parkEnd.map { $0 > now ? "Parkavimas · \(max(1, Int($0.timeIntervalSince(now) / 60))) min" : "Parkavimo laikmatis" } ?? "Parkavimo laikmatis", "timer") }
+                    }
+                    toolTile("Mėgstami YouTube", "star.fill") { showFavs = true }
+                    toolTile("Kelionės", "road.lanes") { showTrips = true }
+                    if alertsOn { toolTile("Pranešti apie kliūtį", "exclamationmark.triangle.fill") { showReport = true } }
+                    toolTile("Nustatymai", "gearshape.fill") { showSettings = true }
+                }
+                .padding()
+            }
+            .navigationTitle("Įrankiai").navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Uždaryti") { showTools = false } } }
+        }
+    }
+
+    private func toolTile(_ title: LocalizedStringKey, _ icon: String, action: @escaping () -> Void) -> some View {
+        Button { showTools = false; DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { action() } } label: { tileLabel(title, icon) }
+            .buttonStyle(.plain)
+    }
+
+    private func tileLabel(_ title: LocalizedStringKey, _ icon: String) -> some View {
+        VStack(spacing: 8) {
+            Image(systemName: icon).font(.title2)
+            Text(title).font(.subheadline.weight(.semibold)).multilineTextAlignment(.center).lineLimit(2)
+        }
+        .foregroundStyle(.white).frame(maxWidth: .infinity, minHeight: 88)
+        .background(Color(white: 0.14), in: RoundedRectangle(cornerRadius: 14))
+    }
+
+    /// v19: juosta tarp žemėlapio ir video – video / muzikos mygtukai nebedengia YouTube paieškos ir meniu.
+    @ViewBuilder
+    private var railButtons: some View {
+        Button { withAnimation { solo = solo == "video" ? nil : "video" } } label: {
+            Image(systemName: solo == "video" ? "rectangle.split.2x1" : "arrow.up.left.and.arrow.down.right").font(.system(size: 16, weight: .semibold))
+        }
+        .accessibilityLabel(solo == "video" ? "Žemėlapis ir video" : "Video per visą ekraną")
+        if musicSplitOn {
+            Button { showMusic.toggle() } label: { Image(systemName: showMusic ? "play.rectangle.fill" : "music.note").font(.system(size: 16, weight: .semibold)) }
+                .accessibilityLabel(showMusic ? "Rodyti video" : "Rodyti muziką")
+        }
+        Menu {
+            Button("YouTube", systemImage: "play.rectangle") { showMusic = false; source = .none }
+            Button("Failas iš telefono", systemImage: "folder") { showFilePicker = true }
+        } label: { Image(systemName: "ellipsis").font(.system(size: 16, weight: .bold)) }
+        .accessibilityLabel("Video šaltinis")
+    }
+
+    @ViewBuilder
+    private func controlRail(total: CGFloat, drag: Bool) -> some View {
+        VStack(spacing: 14) {
+            railButtons
+            Spacer(minLength: 8)
+            if drag {
+                Capsule().fill(dragStartSplit == nil ? Color(white: 0.4) : .accentColor).frame(width: 5, height: 56)
+                    .accessibilityLabel("Tempk, kad pakeistum žemėlapio dydį")
+            }
+            Spacer(minLength: 8)
+        }
+        .foregroundStyle(.white).buttonStyle(.plain)
+        .frame(width: 48).padding(.vertical, 10)
+        .contentShape(Rectangle())
+        .gesture(DragGesture(minimumDistance: 2)
+            .onChanged { g in
+                let start = dragStartSplit ?? (bigMap ? splitBig : splitSmall)
+                if dragStartSplit == nil { dragStartSplit = start }
+                let delta = Double(g.translation.width / max(total, 1)) * (mapOnRight ? -1 : 1)
+                let v = min(0.85, max(0.15, start + delta))
+                if bigMap { splitBig = v } else { splitSmall = v }
+            }
+            .onEnded { _ in dragStartSplit = nil }, including: drag ? .all : .subviews)
     }
 
     /// v12: YouTube – šalia žemėlapio per pusę, per visą ekraną arba YouTube programėlėje.
@@ -587,10 +622,6 @@ struct ContentView: View {
 
     private func startRoute() {
         guard !destination.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        if navProvider != .apple {
-            ExternalNav.open(navProvider, query: destination)
-            return
-        }
         camera = .userLocation(followsHeading: true, fallback: .automatic)
         Task { await nav.start(to: destination, from: loc.location) }
     }
@@ -600,21 +631,16 @@ struct ContentView: View {
     @ViewBuilder
     private var turnBanner: some View {
         if let step = nav.currentStep {
-            HStack(spacing: 14) {
+            HStack(spacing: 10) {
                 Image(systemName: maneuverIcon(for: step.instructions))
-                    .font(.system(size: 34, weight: .bold))
+                    .font(.system(size: 30, weight: .bold))
                 VStack(alignment: .leading, spacing: 2) {
                     Text(formatDistance(nav.distanceToStep))
                         .font(.system(.title2, design: .rounded).bold())
                     Text(step.instructions)
-                        .font(.headline).lineLimit(2)
+                        .font(.subheadline.weight(.semibold)).lineLimit(2)
                 }
                 Spacer(minLength: 8)
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text(formatDistance(nav.remainingDistance)).font(.subheadline.bold())
-                    Text("\(Int(nav.remainingTime / 60)) min · \(Date().addingTimeInterval(nav.remainingTime).formatted(date: .omitted, time: .shortened))").font(.subheadline)
-                }
-                .opacity(0.85)
                 ShareLink(item: etaMessage) {
                     Image(systemName: "paperplane.fill").font(.title3)
                         .padding(10).background(.white.opacity(0.2), in: Circle())
@@ -622,10 +648,9 @@ struct ContentView: View {
                 .accessibilityLabel("Siųsti atvykimo laiką")
             }
             .foregroundStyle(.white)
-            .padding(.horizontal, 16).padding(.vertical, 10)
-            .background(Color.green.opacity(0.92), in: RoundedRectangle(cornerRadius: 16))
-            .padding(.horizontal, 16).padding(.top, 4)
-            .frame(maxWidth: 640)
+            .padding(.horizontal, 12).padding(.vertical, 8)
+            .background(Color.green.opacity(0.94), in: RoundedRectangle(cornerRadius: 14))
+            .padding(6)
             // v13: eismo juostos prieš posūkį
             .overlay(alignment: .bottomLeading) {
                 if lanesOn, let info = lanes.info, nav.distanceToStep < 600 {
@@ -704,14 +729,6 @@ struct ContentView: View {
                     Text("Pridėk valdiklį „Važiuoti namo“ prie iPhone pradžios ekrano: paspaudus jį, maršrutas namo prasideda iškart.")
                 }
                 Section {
-                    Picker("Vesti per", selection: $navProviderRaw) {
-                        ForEach(NavProvider.allCases) { p in Text(p.title).tag(p.rawValue) }
-                    }
-                    .pickerStyle(.segmented)
-                } header: { Text("Navigacijos programa") } footer: {
-                    Text("Waze ir Google Maps navigacijos kitose programėlėse rodyti negalima, todėl paspaudus „Vesti“ atsidaro jų programėlė su maršrutu. Grįžus atgal, video tęsis nuo ten, kur sustojo.")
-                }
-                Section {
                     Picker("Žemėlapis", selection: $mapEngine) {
                         Text("Apple").tag("apple")
                         Text("Google").tag("google")
@@ -787,24 +804,34 @@ struct ContentView: View {
         GaugeStyle(rawValue: gaugeStyleRaw) ?? GaugeStyle.forMake(carMake)
     }
 
+    /// v19: mažas spidometras kaip Waze – greitis apskritime, šalia greičio riba.
     private var infoCluster: some View {
         let lim = road.roadLimit
         let overRoad = lim.map { loc.speedKmh > Double($0) + 3 } ?? false
-        return HStack(spacing: 8) {
-            BrandGauge(style: gaugeStyle, speed: loc.speedKmh.rounded(), limit: Double(lim ?? Int(speedLimitKmh)))
-                .frame(width: 96, height: 96)
-                .overlay(Circle().stroke(lockedByMotion ? Color.red : (overRoad ? Color.orange : Color.clear), lineWidth: 3))
-                .shadow(radius: 6)
+        let metric = unitsV13 != "mph"
+        let shown = metric ? loc.speedKmh : loc.speedKmh / 1.609
+        return HStack(spacing: 6) {
+            VStack(spacing: -2) {
+                Text("\(Int(shown.rounded()))").font(.system(size: 22, weight: .heavy, design: .rounded)).monospacedDigit()
+                Text(metric ? "km/h" : "mph").font(.system(size: 9, weight: .semibold))
+            }
+            .foregroundStyle(overRoad || lockedByMotion ? .white : .primary)
+            .frame(width: 58, height: 58)
+            .background(Circle().fill(lockedByMotion ? Color.red : (overRoad ? Color.orange : Color(white: 0.12))))
+            .overlay(Circle().stroke(.white.opacity(0.25), lineWidth: 1.5))
+            .shadow(radius: 4)
+            .accessibilityLabel("Greitis \(Int(shown.rounded()))")
             if let lim {
                 Text("\(lim)")
-                    .font(.system(size: 17, weight: .heavy, design: .rounded))
+                    .font(.system(size: 15, weight: .heavy, design: .rounded))
                     .foregroundStyle(.black)
-                    .frame(width: 44, height: 44)
+                    .frame(width: 38, height: 38)
                     .background(Circle().fill(.white))
-                    .overlay(Circle().stroke(Color(red: 0.88, green: 0.14, blue: 0.17), lineWidth: 5))
+                    .overlay(Circle().stroke(Color(red: 0.88, green: 0.14, blue: 0.17), lineWidth: 4))
                     .accessibilityLabel("Greičio riba \(lim)")
             }
         }
+        .environment(\.colorScheme, .dark)
     }
 
     @ViewBuilder

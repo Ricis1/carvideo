@@ -202,8 +202,7 @@ struct OnboardingView: View {
             switch step {
             case 0: page("Sveiki atvykę į CarVideo", "Video, muzika ir navigacija automobilyje vienoje programėlėje. Nustatysim per minutę.") { EmptyView() }
             case 1: page("Kur tavo namai?", "Tada vienu paspaudimu galėsi važiuoti namo.") { TextField("Namų adresas", text: $home).textFieldStyle(.roundedBorder) }
-            case 2: page("Kuo naviguoji?", "Apple rodoma programėlės viduje. Waze ir Google Maps atsidaro savo programėlėje.") {
-                Picker("", selection: $nav) { Text("Apple").tag("apple"); Text("Waze").tag("waze"); Text("Google Maps").tag("google") }.pickerStyle(.segmented) }
+            case 2: page("Navigacija programėlės viduje", "Įvedi, kur važiuoji – maršrutas, posūkiai ir balsas čia pat, šalia video.") { EmptyView() }   // v19
             default: page("Greitis ir vienetai", "Video sustoja, kai greitis viršija ribą.") {
                 Picker("", selection: $units) { Text("km/h").tag("kmh"); Text("mph").tag("mph") }.pickerStyle(.segmented)
                 Stepper("Riba: \(Int(limit)) km/h", value: $limit, in: 0...300, step: 10) }
@@ -230,7 +229,7 @@ struct PortraitHomeView: View {
     @Environment(\.openURL) private var openURL
     @State private var pos: MapCameraPosition = .userLocation(fallback: .automatic)
     @MainActor private func goHome() {
-        let p = NavProvider(rawValue: navRaw) ?? .apple
+        let p = NavProvider.apple   // v19: visada Apple
         if p == .apple, let q = home.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed), let u = URL(string: "maps://?daddr=\(q)&dirflg=d") { openURL(u) }
         else { ExternalNav.open(p, query: home) }
     }
