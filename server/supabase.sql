@@ -85,3 +85,22 @@ language sql stable as $$
     and st_dwithin(geography(st_makepoint(f.lon, f.lat)), geography(st_makepoint(fuel_prices_nearby.lon, fuel_prices_nearby.lat)), radius_m)
   order by f.station_id, f.fuel, f.created_at desc;
 $$;
+
+-- ===== v17: apsauga nuo pasikartojančių pranešimų ir automatinis valymas (veikia nemokamame plane) =====
+-- Jei per 10 min. 150 m spinduliu jau yra toks pat pranešimas – naujas nekuriamas, o senasis patvirtinamas.
+create or replace function alerts_dedupe() returns trigger language plpgsql as $$
+declare existing uuid;
+begin
+  select id into existing from alerts
+   where kind = new.kind and created_at > now() - interval '10 minutes'
+     and st_dwithin(geo, st_setsrid(st_makepoint(new.lon, new.lat), 4326)::geography, 150)
+   limit 1;
+  if existing is not null then
+    update alerts set confirmations = confirmations + 1, created_at = now() where id = existing;
+    return null;   -- naujo įrašo nekuriam
+  end if;
+  delete from alerts where created_at < now() - interval '2 hours';   -- seni pranešimai išvalomi savaime
+  return new;
+end $$;
+drop trigger if exists alerts_dedupe on alerts;
+create trigger alerts_dedupe before insert on alerts for each row execute function alerts_dedupe();

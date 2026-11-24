@@ -39,7 +39,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
             SUPABASE_URL="$SUPABASE_URL" SUPABASE_KEY="$SUPABASE_KEY" \
             build 2>&1 | tee build.log | grep -E "error:|warning: unre|BUILD (SUCCEEDED|FAILED)" || true
-          test -d build/Build/Products/Release-iphoneos/CarVideo.app
+          grep -q "BUILD SUCCEEDED" build.log
       - name: Errors
         if: failure()
         run: grep -E "error:" build.log | sort -u | head -80 || true

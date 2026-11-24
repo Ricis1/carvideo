@@ -1,3 +1,4 @@
+import Foundation
 import ActivityKit
 
 /// v10: užrakinto ekrano valdiklis (Live Activity) – bendras programėlei ir valdiklių plėtiniui.
